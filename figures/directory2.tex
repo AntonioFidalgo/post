@@ -1,0 +1,79 @@
+\documentclass[crop, tikz,  border=3mm, convert={density=1500, outext=.png, outfile="directory2.png"}]{standalone}
+\usepackage{forest}
+\useforestlibrary{edges}
+\begin{document}
+\forestapplylibrarydefaults{edges}
+\tikzset{%
+  mkdir/.pic={%
+    \draw [pic actions] (0,-4*\mkdirsize) -- ++(0,8*\mkdirsize) -- ++(\mkdirsize,\mkdirsize) -- ++(5*\mkdirsize,0) -- ++(\mkdirsize,-\mkdirsize) -- ++(5*\mkdirsize,0) |- cycle;
+  },
+  touch/.pic={%
+    \draw [pic actions] (0,-6*\touchsize) |- ++(5*\touchsize,12*\touchsize) edge ++(3*\touchsize,-3*\touchsize) |- ++(3*\touchsize,-3*\touchsize) |- cycle;
+  },
+  mkdir size/.store in=\mkdirsize,
+  touch size/.store in=\touchsize,
+  icon sep/.store in=\iconsep,
+  icon sep from path/.store in=\iconsepfrompath,
+  mkdir size=.25ex,
+  touch size=.25ex,
+  icon sep=1.5ex,
+  icon sep from path=1ex,
+}
+\forestset{%
+  optional/.style={%
+    content/.wrap value={$<$\hspace{0.05em}\normalfont\itshape ##1\hspace{0.15em}$>$},
+  },
+}
+\begin{forest}
+  for tree={
+    font=\ttfamily,
+    grow'=0,
+    folder,
+    if n children=0{
+      before typesetting nodes={
+        tempdima=\iconsepfrompath+\iconsep+8*\touchsize,
+        content/.wrap value={\expandafter\hskip \foresteregister{tempdima}#1},
+      },
+      tikz={%
+        \pic [xshift=\iconsepfrompath] at (.west) {touch};
+      },
+    }{
+      if level=0{
+        tikz={%
+          \pic at (.west) {mkdir};
+        },
+        before typesetting nodes={
+          tempdima=\iconsep+12*\mkdirsize,
+          content/.wrap value={\expandafter\hskip \foresteregister{tempdima}#1},
+        },
+      }{
+        tikz={%
+          \pic [xshift=\iconsepfrompath] at (.west) {mkdir};
+        },
+        before typesetting nodes={
+          tempdima=\iconsepfrompath+\iconsep+12*\mkdirsize,
+          content/.wrap value={\expandafter\hskip \foresteregister{tempdima}#1},
+        },
+      },
+    },
+  },
+  [Myfolders
+    [my-references.bib]
+    [Foofolder
+      [Data
+      [...]
+      ]
+      [Figures
+        [...]
+      ]
+      [IAMhere.Rmd]
+      [IAMhere.pdf]
+      ]
+    [Zoofolder
+      [my-other-refs.bib]
+      [IWAShere.Rmd]
+      [IWAShere.pdf]    
+    ]  
+  ]
+\end{forest}
+\end{document}

@@ -1,0 +1,123 @@
+---
+title: "Include a Figure in your Report"
+author: "Antonio Fidalgo"
+date: 2022-02-27
+description: "Details on the recommended way of introducing a figure in your report."
+tags: ["figures", "R chunk", "path", "chunk options"]
+series: ["figures"]
+link-citations: true
+
+---
+
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
+
+
+<p>There are different ways of introducing a figure in your final report knitted from a Rmd file.<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> Below are details on the way that I recommend because:</p>
+<ol style="list-style-type: decimal">
+<li>It allows for easy cross-references.</li>
+<li>It allows for tweaking the appearance of the figure, e.g., its size.</li>
+<li>It is consistent with the way we code in R, i.e., with R functions in a R chunk.</li>
+</ol>
+<div id="dont-do-this" class="section level1">
+<h1>Don’t Do This</h1>
+<p>First, let me mention what I <strong>don’t recommend</strong>. It’s a Markdown code given in the <a href="https://raw.githubusercontent.com/rstudio/cheatsheets/main/rmarkdown.pdf">RMarkdown cheat sheet.</a> And it looks like:</p>
+<pre class="markdown"><code>![Caption](image.png)</code></pre>
+<p>So, in a Rmd file, you would write, for instance:</p>
+<pre class="markdown"><code># Introduction
+
+Lore ipsum... see Figure below.
+
+![Caption](image.png)
+
+dolor sit amet.</code></pre>
+<p>Because of the three reasons above, please just don’t do that in your report.</p>
+</div>
+<div id="use-r-code-in-a-r-chunk" class="section level1">
+<h1>Use R Code in a R Chunk</h1>
+<p>To include a figure in your report, I recommend that you use R code, i.e., a R function, in a R chunk. The best<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a> function is:</p>
+<pre class="r"><code>knitr::include_graphics(&quot;path to file&quot;)</code></pre>
+<p>This R function goes into a R chunk so that your Rmd could look almost like the next example. I say almost because there are still some extra points that I will need to introduce further below.</p>
+<pre><code># Introduction
+
+Lore ipsum... see Figure below.
+
+```{r}
+knitr::include_graphics(&quot;path to file&quot;)
+```
+
+dolor sit amet.</code></pre>
+<div id="wait-path-to-file" class="section level2">
+<h2>Wait… “path to file”?</h2>
+<p>The path to file… is an advanced topic that I will explain elsewhere.</p>
+<p>For the time being, if you are not confortable yet with giving a relative path, then adopt the following two safe-mode rules:</p>
+<ol style="list-style-type: decimal">
+<li>Put the picture file (e.g., “image.png”) in the same folder as your Rmd (where you are writing). Then, the “path to file” is simply the name of the file, <strong>with the file extension</strong> (!).</li>
+</ol>
+<pre class="r"><code>knitr::include_graphics(&quot;image.png&quot;)</code></pre>
+<ol start="2" style="list-style-type: decimal">
+<li>Do not use absolute paths! These paths give the full address of the file in <strong>your computer</strong>, e.g.,</li>
+</ol>
+<pre class="markdown"><code>&quot;C:\Desktop\mypictures\image.png&quot;</code></pre>
+<pre class="markdown"><code>&quot;/users/me/Desktop/mypictures/image.png&quot;</code></pre>
+<p>The problem with absolute paths is that they compromise reproducibility.<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a> An absolute no go!</p>
+</div>
+</div>
+<div id="prepare-for-cross-referecing-your-figure" class="section level1">
+<h1>Prepare for Cross-Referecing your Figure</h1>
+<p>Cross-referencing<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a> is everywhere in reports. Rmd files allow for automatic cross-references. So, implementing it for your figures in your Rmd should be a no-brainer.</p>
+<p>This requires 3 steps:</p>
+<ol style="list-style-type: decimal">
+<li>Give a name to the R chunk.</li>
+<li>Give a caption to the figure with the chunk option <code>fig.cap</code>.</li>
+<li>Use an output type from the package {bookdown}.</li>
+</ol>
+<p>For <strong>steps 1. and 2.</strong>, here is an example where the name of the chunk is <code>my-important-fig</code> and the caption is “This is the caption of my figure.”.</p>
+<pre><code>```{r my-important-fig, fig.cap=&quot;This is the caption of my figure.&quot;}
+knitr::include_graphics(&quot;image.png&quot;)
+```</code></pre>
+<p>As for <strong>step 3.</strong>, you must define in the YAML the option <code>output</code> to use a function from the package {bookdown}. The next example allows you to knit to (default versions of) pdf or HTML.</p>
+<pre class="yaml"><code>title: &quot;Untitled&quot;
+output:
+  bookdown::pdf_document2: default
+  bookdown::html_document2: default</code></pre>
+</div>
+<div id="tweak-the-appearance" class="section level1">
+<h1>Tweak the Appearance</h1>
+<p>To change the appearance of your figure, you must appropriately choose the values in the chunk options. Here are my most common choices.</p>
+<ul>
+<li><code>echo = FALSE</code>, if I want to include an external file.<a href="#fn5" class="footnote-ref" id="fnref5"><sup>5</sup></a></li>
+<li><code>fig.align = 'center'</code>, self-explanatory.</li>
+<li><code>out.width='66%'</code>, this lets the size of the figure in the output file to be dependent on the width of this latter. I find that <code>out.width='100%'</code> often makes the figures too big. Alternatively, you can manually set the width and the height of the figure in inches with <code>fig.width =</code> and <code>fig.height =</code>. I almost never do it!<a href="#fn6" class="footnote-ref" id="fnref6"><sup>6</sup></a></li>
+</ul>
+<p>Overall, here is what my typical R chunk for a figure looks like.</p>
+<pre><code>```{r my-important-fig, echo = FALSE, fig.align = &#39;center&#39;, out.width=&#39;66%&#39;, fig.cap=&quot;This is the caption of my figure.&quot;}
+knitr::include_graphics(&quot;image.png&quot;)
+```</code></pre>
+</div>
+<div id="last-comments" class="section level1">
+<h1>Last Comments</h1>
+<div id="automatic-numbering" class="section level3">
+<h3>Automatic Numbering</h3>
+<p>You shouldn’t give a number to your figures.<a href="#fn7" class="footnote-ref" id="fnref7"><sup>7</sup></a> This is done automatically. Advanced users can do all kind of fancy stuff. I’m pretty happy with the defaults.</p>
+</div>
+<div id="position-of-the-figure" class="section level3">
+<h3>Position of the Figure</h3>
+<p>In HTML output formats, the figure appears where you coded it. Period.</p>
+<p>Some users, however, are surprised with the behavior in the pdf document. This is because the pdf document is generated by <span class="math inline">\(\LaTeX\)</span>. Being the best typesetting engine in the world, <span class="math inline">\(\LaTeX\)</span> just “knows better” where to put your figure.</p>
+<p>In short,<a href="#fn8" class="footnote-ref" id="fnref8"><sup>8</sup></a> <span class="math inline">\(\LaTeX\)</span> puts the figure at the top of a page. Great default, used in many scientific papers and books. If you can’t break away from the habit of having figures in between your paragraphs, you can tell <span class="math inline">\(\LaTeX\)</span> to put your figure exactly where you coded it.</p>
+<p>For that, use the chunk option and value <code>fig.pos = 'h!'</code>. The <code>h</code> stands for “here” and the <code>!</code> forces <span class="math inline">\(\LaTeX\)</span> to “really” override its default.</p>
+</div>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>Recall, this is R: there are always multiple ways of obtaining a result.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p>I think it is the best. But, also, I don’t want to always repeat “recommended”. It’s okay, right?<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
+<li id="fn3"><p>Please make sure that you understand this point.<a href="#fnref3" class="footnote-back">↩︎</a></p></li>
+<li id="fn4"><p>Recall, there is cross-referencing at play when you read in the final report sentences like : “The results are in Figure 4 of Chapter 5.”, i.e., a cross-reference of the figure and a cross-reference of the chapter. Obviously, we want cross-reference to be automatic.<a href="#fnref4" class="footnote-back">↩︎</a></p></li>
+<li id="fn5"><p>Set to <code>TRUE</code>, sometimes, when the figure was generated by R code that you want to show. Rare.<a href="#fnref5" class="footnote-back">↩︎</a></p></li>
+<li id="fn6"><p>Exception: if the figure is tall, constraining it to 66% of the output width smashes it down to much. In those cases, I use <code>fig.height = 7</code>.<a href="#fnref6" class="footnote-back">↩︎</a></p></li>
+<li id="fn7"><p>Nor do you need to write “Figure:” in your caption! This too is automatic, of course!<a href="#fnref7" class="footnote-back">↩︎</a></p></li>
+<li id="fn8"><p>It’s a bit more complicated than that, but we don’t need all the details.<a href="#fnref8" class="footnote-back">↩︎</a></p></li>
+</ol>
+</div>

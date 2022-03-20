@@ -1,0 +1,68 @@
+---
+title: "Why I Use R"
+author: "Antonio Fidalgo"
+date: 2022-02-25
+description: "The choice of R is primarily epistemological, not technical."
+categories: ["R"]
+tags: ["why R", "R2D2"]
+link-citations: true
+
+---
+
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
+
+
+<div id="r2d2" class="section level1">
+<h1>A List of Reasons</h1>
+<p><a href="https://hadley.nz/">Hadley Wickham</a> has a <a href="https://adv-r.hadley.nz/introduction.html#why-r">comprehensive and authoritative section</a> that lists the reasons for using R, as well as the cases where R is further away from an optimal tool.</p>
+<p>These reasons for using R are broadly recognized and expressed in countless places, such as <a href="https://www.newgenapps.com/blog/6-reasons-why-choose-r-programming-for-data-science-projects/">here</a>, <a href="https://medium.com/science-uncovered/6-reasons-why-you-should-use-r-38643ec98d0a">here</a> and many many other sites…</p>
+<p>Beyond Wickham’s, <a href="https://www.r-bloggers.com/why-use-r-five-reasons/">here is one of my favorite simple list</a>:</p>
+<ol style="list-style-type: decimal">
+<li>R is <strong>free</strong>: for everyone, in all platforms, open-source…</li>
+<li>R is <strong>popular</strong>: it’s becoming a standard in academia and valued by employers…</li>
+<li>R is <strong>powerful</strong>: not as much as other languages such as Python or C but it can easily handle large data sets and long computations while some features, e.g., graphical visualizations are unmatched in other programs…</li>
+<li>R is <strong>flexible</strong>: beyond all kind of methods for data analysis, R-related environments allow to develop a large variety of projects such as these notes, interactive websites, research papers, etc…</li>
+<li>R is <strong>well supported</strong>: there is a truly amazing community of users who provide help online…</li>
+</ol>
+</div>
+<div id="hold-on" class="section level1">
+<h1>Hold On!</h1>
+<p>Time for some healthy skepticism. Based on the criteria of the list above, does R really have an edge? What about other possible programs? Let’s consider, for instance, Excel (or any other spreadsheet program, for that matter).<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a></p>
+<ol style="list-style-type: decimal">
+<li>Excel is not free <strong>but</strong> it is not clear that most users really and directly pay for it.</li>
+<li>Excel is <strong>super</strong> popular. Certainly, Excel is a must-have skill in business.</li>
+<li>Excel is powerful for some <strong>common, basic tasks</strong>, in particular when the user likes to see the data.</li>
+<li>Excel is flexible as the range of capabilities is greatly extended by some <strong>easy commands</strong> such as <code>if</code> or dynamic references. Granted, complicated data analysis becomes quickly cumbersome if not outright impossible.</li>
+<li>Excel is supported, <strong>courtesy of users</strong> who like to help over the internet.</li>
+</ol>
+<p>Arguably, while it will never be as popular as the spreadsheet, R is superior to Excel in power and flexibility. Actually, next to R, it’s even a bit of a stretch to see Excel as a powerful and flexible tool. Does this amount to a definitive edge for R? Unlikely. Indeed, one could easily reject this relative advantage of R over Excel by declaring the following. Excel is <strong>just</strong> powerful and flexible <strong>enough</strong> for the majority of tasks executed in the majority of projects by the majority of the people who deal with data.</p>
+<p>Clearly, there is a case against R in comparison to Excel, especially when one considers other criteria such as the initial learning costs.</p>
+<p>On the other hand, notice that there is no clear absolute case for R. It is not the most powerful coding language: <a href="https://en.wikipedia.org/wiki/C_(programming_language)">C</a>, for instance, is far superior in that respect. Neither is it the most flexible one: <a href="https://www.python.org/">Python</a> is more general.</p>
+</div>
+<div id="then-why-do-i-use-r" class="section level1">
+<h1>Then, Why do I Use R?</h1>
+<div id="philosophy" class="section level2">
+<h2>Philosophy</h2>
+<p>The choice of R is primarily epistemological, not technical. It’s about how I define scientific research, not about the tool with the most convenient features.</p>
+<p>I strongly support the principle that research should be reproducible. As a consequence, I feel compelled to adopt the best tool that satisfies the reproducibility principle. As I write and for the foreseeable future, I believe that tool is R within RStudio.</p>
+<p>As for what makes R such a great tool, we can now, and only now, refer to the list of reasons above. In particular, I think that the value of the program lies in the fact that is a bundle of contributions designed by practitioners and for practitioners.</p>
+</div>
+<div id="robustness-efficiency" class="section level2">
+<h2>Robustness &amp; Efficiency</h2>
+<p>All good programs for data analysis offer the possibility of saving scripts, the whole set of instructions carried to obtained the final results. In Stata, for instance, this takes the form of a file, appropriately called <code>do-file</code>. Consequently, these scripts are often seen as sufficient to guarantee reproducibility.</p>
+<p>That view is correct but somehow short-sighted. It focus on the final results and the final report instead of addressing the process of obtaining and reporting the results. What difference does it make? A large and possibly dangerous one.</p>
+<p>To separate the data analysis script from the report (text) implies to constantly manoeuvre back and forth between programs or, in other words, copy-paste. Arguably, this is neither a robust nor an efficient process. It is not robust because it is prone to errors, including of omission. It is not efficient because any modification in the underlying data requires a systematic revision of the tables, results or graphs copy-pasted into the report.</p>
+<p>As a consequence, I feel compelled to adopt the best tool for dynamic reporting. As I write and for the foreseeable future, I believe that tool is R within RStudio.</p>
+</div>
+<div id="power" class="section level2">
+<h2>Power</h2>
+<p>My first encounter with R was also due to a necessity. The techniques that I considered for my data analysis were not available on any other popular software, such as Stata or SPSS. This is no coincidence. The range of functions available in R is first-class and virtually unlimited.</p>
+<p>Recall that beyond the base R functions, the capabilities of the program can and everyday are expanded by the free contributions of users. The limit is the generosity of these latter, not the payroll of the companies who produce the other programs.</p>
+</div>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>The points here are not as documented as desirable. Please read them as mere educated guesses.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+</ol>
+</div>

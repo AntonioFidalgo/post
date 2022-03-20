@@ -1,0 +1,52 @@
+---
+title: "Topics List I"
+author: "Antonio Fidalgo"
+date: 2022-02-26
+description: "A first list of topics for posts in this blog."
+tags: ["contribute"]
+series: ["post topics"]
+link-citations: true
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = FALSE)
+```
+
+
+# The List
+
+As announced in the [About](https://antoniofidalgo.page/routeR/about/) page, here is a (**totally unordered**) list of topics that could picked to create posts in this blog.  
+
+
+- ~~Include a figure~~[^me]
+- Carry a $t$-test
+- Cite references
+- Dealing with error "Could not find function"
+- Dealing with XXX tinytex error
+- Carry a two-sample test 
+- Insightful example of data set read into R
+- Cross-reference a section
+- Cross-reference a ...
+- Insightful examples of tidying data
+- Easy Markdown tables
+- Relative paths in Rmd[^metoo]
+- Mastering R chunk options
+- ...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[^me]: I'll probably do this one myself soon.
+[^metoo]: This one too, I'll probably do it myself soon.

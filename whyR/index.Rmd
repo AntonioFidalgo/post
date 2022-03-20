@@ -1,0 +1,77 @@
+---
+title: "Why I Use R"
+author: "Antonio Fidalgo"
+date: 2022-02-25
+description: "The choice of R is primarily epistemological, not technical."
+categories: ["R"]
+tags: ["why R", "R2D2"]
+link-citations: true
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = FALSE)
+```
+
+
+
+# A List of Reasons {#r2d2}
+
+[Hadley Wickham](https://hadley.nz/) has a [comprehensive and authoritative section](https://adv-r.hadley.nz/introduction.html#why-r) that lists the reasons for using R, as well as the cases where R is further away from an optimal tool.  
+
+These reasons for using  R are broadly recognized and expressed in countless places, such as [here](https://www.newgenapps.com/blog/6-reasons-why-choose-r-programming-for-data-science-projects/), [here](https://medium.com/science-uncovered/6-reasons-why-you-should-use-r-38643ec98d0a) and many many other sites...  
+
+Beyond Wickham's, [here is one of my favorite simple list](https://www.r-bloggers.com/why-use-r-five-reasons/):  
+
+1. R is **free**: for everyone, in all platforms, open-source...
+1. R is **popular**: it's becoming a standard in academia and valued by employers...
+1. R is **powerful**: not as much as other languages such as Python or C but it can easily handle large data sets and long computations while some features, e.g., graphical visualizations are unmatched in other programs...
+1. R is **flexible**: beyond all kind of methods for data analysis, R-related environments allow to develop a large variety of projects such as these notes, interactive websites, research papers, etc...
+1. R is **well supported**: there is a truly amazing community of users who provide help online... 
+
+
+# Hold On!
+
+Time for some healthy skepticism. Based on the criteria of the list above, does R really have an edge? What about other possible programs? Let's consider, for instance, Excel (or any other spreadsheet program, for that matter).^[The points here are not as documented as desirable. Please read them as mere educated guesses.]
+
+1. Excel is not free **but** it is not clear that most users really and directly pay for it. 
+1. Excel is **super** popular. Certainly, Excel is a must-have skill in business.
+1. Excel is powerful for some **common, basic tasks**, in particular when the user likes to see the data. 
+1. Excel is flexible as the range of capabilities is greatly extended by some **easy commands** such as `if` or dynamic references. Granted, complicated data analysis becomes quickly cumbersome if not outright impossible.
+1. Excel is supported, **courtesy of users** who like to help over the internet.
+
+Arguably, while it will never be as popular as the spreadsheet, R is superior to Excel in power and flexibility. Actually, next to R, it's even a bit of a stretch to see Excel as a powerful and flexible tool. Does this amount to a definitive edge for R? Unlikely. Indeed, one could easily reject this relative advantage of R over Excel by declaring the following. Excel is **just** powerful and flexible **enough** for the majority of tasks executed in the majority of projects by the majority of the people who deal with data.  
+
+Clearly, there is a case against R in comparison to Excel, especially when one considers other criteria such as the initial learning costs.   
+
+On the other hand, notice that there is no clear absolute case for R. It is not the most powerful coding language: [C](https://en.wikipedia.org/wiki/C_(programming_language)), for instance, is far superior in that respect. Neither is it the most flexible one: [Python](https://www.python.org/) is  more general.  
+
+
+# Then, Why do I Use R?
+
+## Philosophy
+
+The choice of R is primarily epistemological, not technical. It's about how I define scientific research, not about the tool with the most convenient features.  
+
+I strongly support the principle that research should be reproducible. As a consequence, I feel compelled to adopt the best tool that satisfies the reproducibility principle. As I write and for the foreseeable future, I believe that tool is R within RStudio.   
+
+As for what makes R such a great tool, we can now, and only now, refer to the list of reasons above. In particular, I think that the value of the program lies in the fact that is a bundle of contributions designed by practitioners and for practitioners. 
+
+## Robustness & Efficiency
+ 
+All good programs for data analysis offer the possibility of saving scripts, the whole set of instructions carried to obtained the final results. In Stata, for instance, this takes the form of a file, appropriately called `do-file`. Consequently, these scripts are often seen as sufficient to guarantee reproducibility.   
+
+That view is correct but somehow short-sighted. It focus on the final results and the final report instead of addressing the process of obtaining and reporting the results. What difference does it make? A large and possibly dangerous one.   
+
+To separate the data analysis script from the report (text) implies to constantly manoeuvre back and forth between programs or, in other words, copy-paste. Arguably, this is neither a robust nor an efficient process. It is not robust because it is prone to errors, including of omission. It is not efficient because any modification in the underlying data requires a systematic revision of the tables, results or graphs copy-pasted into the report.   
+
+As a consequence, I feel compelled to adopt the best tool for dynamic reporting. As I write and for the foreseeable future, I believe that tool is R within RStudio.  
+
+## Power 
+
+My first encounter with R was also due to a necessity. The techniques that I considered for my data analysis were not available on any other popular software, such as Stata or SPSS. This is no coincidence. The range of functions available in R is first-class and virtually unlimited.   
+ 
+Recall that beyond the base R functions, the capabilities of the program can and everyday are expanded by the free contributions of users. The limit is the generosity of these latter, not the payroll of the companies who produce the other programs.
+
+
+

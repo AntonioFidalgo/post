@@ -1,0 +1,740 @@
+---
+title: "Summary Statistics with {stargazer}"
+author: "Antonio Fidalgo"
+date: 2022-03-18
+description: "Summary statistics of the relevant variables are often given in tables preceding the model estimation results. This post is about using {stargazer} for that purpose."
+tags: ["summary", "statistics", "tables", "{stargazer}"]
+series: ["summary statistics"]
+link-citations: true
+
+---
+
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
+
+
+<div id="pros-cons" class="section level1">
+<h1>Pros &amp; Cons</h1>
+<div id="pros" class="section level3 unnumbered">
+<h3>Pros</h3>
+<ol style="list-style-type: decimal">
+<li>Out-of-the-box, easy to use, all-in-one solution.</li>
+<li>The package is “compulsory” for model estimation tables. So it only requires marginal effort to learn extra arguments in the function. As a side bonus, one gets the consistency in the formatting.</li>
+</ol>
+</div>
+<div id="cons" class="section level3 unnumbered">
+<h3>Cons</h3>
+<ol style="list-style-type: decimal">
+<li>The package is somewhat flexible, and built to cover all the standard needs of the practitioners. But the advanced user is doomed to face a case that is not covered by the package options, forcing them to learn an alternative way.</li>
+</ol>
+<p>I do not use {stargazer} for summary statistics. Instead, I build my own tables with {dplyr} and {kableExtra}.<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> But the package is so good and so accessible that R users cannot ignore.</p>
+</div>
+</div>
+<div id="minimal-example" class="section level1">
+<h1>Minimal Example</h1>
+<p>Let’s start with a minimal example that illustrates the usage of some the arguments related to the summary statistics.<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a></p>
+<pre class="r"><code># use chunk option message=FALSE to avoid package info in the output
+library(stargazer)  
+library(dplyr)
+library(magrittr)</code></pre>
+<ul>
+<li>The table is created in a R chunk that needs the chunk option <code>results='asis'</code>.</li>
+<li><code>stargazer()</code> requires a base R data frame, not a tibble, hence the use of <code>as.data.frame()</code>,<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a></li>
+<li>The selection of the variables to be included in the summary is easily done with {dplyr}.</li>
+<li>The argument <code>type</code> of table takes here a <code>ifelse</code> function so that the code works for all the formats. In a research paper, <code>type='latex'</code> would suffice.<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a></li>
+<li>The <code>label</code> argument, required for {knitr}-type of cross-referencing, is a patch solution found <a href="https://github.com/rstudio/bookdown/issues/175#issuecomment-422100007">here</a>.</li>
+<li>The <code>title</code> argument is the caption of the table. In a pdf, it will typically be preceded by “Table 1:”.</li>
+<li>The <code>header = FALSE</code> is a weird requirement: it prevents the package information to be printed in the pdf.</li>
+</ul>
+<pre class="r"><code>mtcars %&gt;% 
+  select(mpg, cyl, hp, am, gear) %&gt;% 
+  as.data.frame() %&gt;%
+  stargazer(type = ifelse(knitr::is_html_output(), &#39;html&#39;, &#39;latex&#39;),
+            label = knitr::opts_current$get(&quot;label&quot;),
+            title = &quot;Summary statistics for (part of) the mtcars data.&quot;,
+            header = FALSE
+            )</code></pre>
+<table style="text-align:center">
+<caption>
+<strong>Summary statistics for (part of) the mtcars data.</strong>
+</caption>
+<tr>
+<td colspan="8" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Statistic
+</td>
+<td>
+N
+</td>
+<td>
+Mean
+</td>
+<td>
+St. Dev.
+</td>
+<td>
+Min
+</td>
+<td>
+Pctl(25)
+</td>
+<td>
+Pctl(75)
+</td>
+<td>
+Max
+</td>
+</tr>
+<tr>
+<td colspan="8" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+mpg
+</td>
+<td>
+32
+</td>
+<td>
+20.091
+</td>
+<td>
+6.027
+</td>
+<td>
+10
+</td>
+<td>
+15.4
+</td>
+<td>
+22.8
+</td>
+<td>
+34
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+cyl
+</td>
+<td>
+32
+</td>
+<td>
+6.188
+</td>
+<td>
+1.786
+</td>
+<td>
+4
+</td>
+<td>
+4
+</td>
+<td>
+8
+</td>
+<td>
+8
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+hp
+</td>
+<td>
+32
+</td>
+<td>
+146.688
+</td>
+<td>
+68.563
+</td>
+<td>
+52
+</td>
+<td>
+96.5
+</td>
+<td>
+180
+</td>
+<td>
+335
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+am
+</td>
+<td>
+32
+</td>
+<td>
+0.406
+</td>
+<td>
+0.499
+</td>
+<td>
+0
+</td>
+<td>
+0
+</td>
+<td>
+1
+</td>
+<td>
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+gear
+</td>
+<td>
+32
+</td>
+<td>
+3.688
+</td>
+<td>
+0.738
+</td>
+<td>
+3
+</td>
+<td>
+3
+</td>
+<td>
+4
+</td>
+<td>
+5
+</td>
+</tr>
+<tr>
+<td colspan="8" style="border-bottom: 1px solid black">
+</td>
+</tr>
+</table>
+</div>
+<div id="nicer" class="section level1">
+<h1>Nicer</h1>
+<p>Let’s tweak the minimal case with some aesthetic elements.</p>
+<ul>
+<li>The options for the display of the numbers are quite straightforward: <code>digits</code> for the number of decimals, <code>digit.separator</code> for the thousands mark, <code>initial.zero</code> for yes/no the 0 before the comma.</li>
+<li>Change the name of the variables by giving a vector of names in the argument <code>covariate.labels</code>. Use <code>NA</code> in that vector for the</li>
+</ul>
+<pre class="r"><code>mtcars %&gt;%
+  select(mpg, cyl, hp, am, gear) %&gt;% 
+  as.data.frame() %&gt;%
+  stargazer(type = ifelse(knitr::is_html_output(), &#39;html&#39;, &#39;latex&#39;),
+            label = knitr::opts_current$get(&quot;label&quot;),
+            title = &quot;Summary statistics for (part of) the mtcars data.&quot;,
+            header = FALSE,
+            
+            digits = 2,
+            digit.separator= &quot;&#39;&quot;,
+            initial.zero = FALSE,
+            covariate.labels = c(&quot;Miles/Gallon&quot;, NA, &quot;Horse Power&quot;, NA, &quot;Gears&quot;)
+            )</code></pre>
+<table style="text-align:center">
+<caption>
+<strong>Summary statistics for (part of) the mtcars data.</strong>
+</caption>
+<tr>
+<td colspan="8" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Statistic
+</td>
+<td>
+N
+</td>
+<td>
+Mean
+</td>
+<td>
+St. Dev.
+</td>
+<td>
+Min
+</td>
+<td>
+Pctl(25)
+</td>
+<td>
+Pctl(75)
+</td>
+<td>
+Max
+</td>
+</tr>
+<tr>
+<td colspan="8" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Miles/Gallon
+</td>
+<td>
+32
+</td>
+<td>
+20.09
+</td>
+<td>
+6.03
+</td>
+<td>
+10
+</td>
+<td>
+15.4
+</td>
+<td>
+22.8
+</td>
+<td>
+34
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+cyl
+</td>
+<td>
+32
+</td>
+<td>
+6.19
+</td>
+<td>
+1.79
+</td>
+<td>
+4
+</td>
+<td>
+4
+</td>
+<td>
+8
+</td>
+<td>
+8
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Horse Power
+</td>
+<td>
+32
+</td>
+<td>
+146.69
+</td>
+<td>
+68.56
+</td>
+<td>
+52
+</td>
+<td>
+96.5
+</td>
+<td>
+180
+</td>
+<td>
+335
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+am
+</td>
+<td>
+32
+</td>
+<td>
+.41
+</td>
+<td>
+.50
+</td>
+<td>
+0
+</td>
+<td>
+0
+</td>
+<td>
+1
+</td>
+<td>
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Gears
+</td>
+<td>
+32
+</td>
+<td>
+3.69
+</td>
+<td>
+.74
+</td>
+<td>
+3
+</td>
+<td>
+3
+</td>
+<td>
+4
+</td>
+<td>
+5
+</td>
+</tr>
+<tr>
+<td colspan="8" style="border-bottom: 1px solid black">
+</td>
+</tr>
+</table>
+</div>
+<div id="selection" class="section level1">
+<h1>Selection</h1>
+<p>The default statistics are coded internally with the following abbreviations: <code>n</code>, <code>mean</code>, <code>sd</code>, <code>min</code>, <code>p25</code>, <code>p75</code>, <code>max</code> (shown by default in that order), and <code>median</code>.</p>
+<p>You can choose which set of statistics to display:</p>
+<ul>
+<li>“positively” with <code>summary.stat</code> taking the vector of desired statistics to display,</li>
+<li>“negatively” with <code>omit.summary.stat</code> taking the vector of desired statistics to remove from the default.</li>
+</ul>
+<pre class="r"><code>mtcars %&gt;%
+  select(mpg, cyl, hp, am, gear) %&gt;% 
+  as.data.frame() %&gt;%
+  stargazer(type = ifelse(knitr::is_html_output(), &#39;html&#39;, &#39;latex&#39;),
+            label = knitr::opts_current$get(&quot;label&quot;),
+            title = &quot;Summary statistics for (part of) the mtcars data.&quot;,
+            header = FALSE,
+            digits = 2,
+            digit.separator= &quot;&#39;&quot;,
+            initial.zero = FALSE,
+            covariate.labels = c(&quot;Miles/Gallon&quot;, NA, &quot;Horse Power&quot;, NA, &quot;Gears&quot;),
+            
+            # summary.stat = c(&quot;n&quot;, &quot;mean&quot;, &quot;sd&quot;, &quot;median&quot;),
+            omit.summary.stat = c(&quot;min&quot;, &quot;max&quot;, &quot;p25&quot;, &quot;p75&quot;)
+            )</code></pre>
+<table style="text-align:center">
+<caption>
+<strong>Summary statistics for (part of) the mtcars data.</strong>
+</caption>
+<tr>
+<td colspan="4" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Statistic
+</td>
+<td>
+N
+</td>
+<td>
+Mean
+</td>
+<td>
+St. Dev.
+</td>
+</tr>
+<tr>
+<td colspan="4" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Miles/Gallon
+</td>
+<td>
+32
+</td>
+<td>
+20.09
+</td>
+<td>
+6.03
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+cyl
+</td>
+<td>
+32
+</td>
+<td>
+6.19
+</td>
+<td>
+1.79
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Horse Power
+</td>
+<td>
+32
+</td>
+<td>
+146.69
+</td>
+<td>
+68.56
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+am
+</td>
+<td>
+32
+</td>
+<td>
+.41
+</td>
+<td>
+.50
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Gears
+</td>
+<td>
+32
+</td>
+<td>
+3.69
+</td>
+<td>
+.74
+</td>
+</tr>
+<tr>
+<td colspan="4" style="border-bottom: 1px solid black">
+</td>
+</tr>
+</table>
+</div>
+<div id="notes" class="section level1">
+<h1>Notes</h1>
+<p>Extra explanatory notes to the table can be given in a character vector thanks to <code>notes</code>. <strong>Each element</strong> of the vector will be <strong>a line</strong> under the table.</p>
+<p>Alignment of the notes is either <code>l</code>(eft), <code>c</code>(enter) or <code>r</code>(ight) given to <code>notes.align</code>.</p>
+<pre class="r"><code>mtcars %&gt;%
+  select(mpg, cyl, hp, am, gear) %&gt;% 
+  as.data.frame() %&gt;%
+  stargazer(type = ifelse(knitr::is_html_output(), &#39;html&#39;, &#39;latex&#39;),
+            label = knitr::opts_current$get(&quot;label&quot;),
+            title = &quot;Summary statistics for (part of) the mtcars data.&quot;,
+            header = FALSE,
+            digits = 2,
+            digit.separator= &quot;&#39;&quot;,
+            initial.zero = FALSE,
+            covariate.labels = c(&quot;Miles/Gallon&quot;, NA, &quot;Horse Power&quot;, NA, &quot;Gears&quot;),
+            # summary.stat = c(&quot;n&quot;, &quot;mean&quot;, &quot;sd&quot;, &quot;median&quot;),
+            omit.summary.stat = c(&quot;min&quot;, &quot;max&quot;, &quot;p25&quot;, &quot;p75&quot;),
+            
+            notes = c(&quot;\\footnotesize{My notes line 1.}&quot;, &quot;My notes line 2.&quot;),
+            notes.align = &quot;r&quot;
+            )</code></pre>
+<table style="text-align:center">
+<caption>
+<strong>Summary statistics for (part of) the mtcars data.</strong>
+</caption>
+<tr>
+<td colspan="4" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Statistic
+</td>
+<td>
+N
+</td>
+<td>
+Mean
+</td>
+<td>
+St. Dev.
+</td>
+</tr>
+<tr>
+<td colspan="4" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Miles/Gallon
+</td>
+<td>
+32
+</td>
+<td>
+20.09
+</td>
+<td>
+6.03
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+cyl
+</td>
+<td>
+32
+</td>
+<td>
+6.19
+</td>
+<td>
+1.79
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Horse Power
+</td>
+<td>
+32
+</td>
+<td>
+146.69
+</td>
+<td>
+68.56
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+am
+</td>
+<td>
+32
+</td>
+<td>
+.41
+</td>
+<td>
+.50
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Gears
+</td>
+<td>
+32
+</td>
+<td>
+3.69
+</td>
+<td>
+.74
+</td>
+</tr>
+<tr>
+<td colspan="4" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td colspan="4" style="text-align:right">
+My notes line 1.
+</td>
+</tr>
+<tr>
+<td colspan="4" style="text-align:right">
+My notes line 2.
+</td>
+</tr>
+</table>
+</div>
+<div id="latex" class="section level1">
+<h1><span class="math inline">\(\LaTeX\)</span></h1>
+<p>It is fair to say that {stargzer} was initially designed for academic publications. Many of these latter use <span class="math inline">\(\LaTeX\)</span> for text editing. So here are a few points to specifically address the usage with <span class="math inline">\(\LaTeX.\)</span></p>
+<ul>
+<li>A group of users makes a surprising choice. They use R for data analysis and a <span class="math inline">\(\LaTeX\)</span> distribution for text editing. But they don’t combine the these two tasks in a Rmd file.<br />
+For this group of users, the {stargazer} table must find its way from the R code to the <span class="math inline">\(\LaTeX\)</span> file. This is achieved with the argument <code>out</code>. The value of this latter is the name of the file, with extension (!),<a href="#fn5" class="footnote-ref" id="fnref5"><sup>5</sup></a> that will contain the code of the table.<a href="#fn6" class="footnote-ref" id="fnref6"><sup>6</sup></a><br />
+</li>
+<li><code>align</code> forces the numbers in the columns to be aligned at the decimal mark. This requires the usage of the <span class="math inline">\(\LaTeX\)</span> package {dcolumn}, to be included in the preamble of the tex file<a href="#fn7" class="footnote-ref" id="fnref7"><sup>7</sup></a></li>
+</ul>
+<pre class="markdown"><code>\usepackage{dcolumn}</code></pre>
+<ul>
+<li><code>table.placement</code> is used to give the placement specifier of the table: <code>h</code>(ere), <code>t</code>(op), <code>b</code>(ottom), <code>p</code>(age), along with the famous <code>!</code> to try to force <span class="math inline">\(\LaTeX\)</span> to override its default behavior.<a href="#fn8" class="footnote-ref" id="fnref8"><sup>8</sup></a></li>
+</ul>
+<pre class="r"><code>mtcars %&gt;% 
+  select(mpg, cyl, hp, am, gear) %&gt;% 
+  as.data.frame() %&gt;%
+  stargazer(label = &quot;my-table-label&quot;,
+            title = &quot;Summary statistics for (part of) the mtcars data.&quot;,
+            header = FALSE,
+            digits = 2,
+            digit.separator= &quot;&#39;&quot;,
+            initial.zero = TRUE, 
+            covariate.labels = c(&quot;Miles/Gallon&quot;, NA, &quot;Horse Power&quot;, NA, &quot;Gears&quot;),
+            # summary.stat = c(&quot;n&quot;, &quot;mean&quot;, &quot;sd&quot;, &quot;median&quot;),
+            omit.summary.stat = c(&quot;min&quot;, &quot;max&quot;, &quot;p25&quot;, &quot;p75&quot;),
+            notes = c(&quot;My notes line 1.&quot;, &quot;My notes line 2.&quot;),
+            notes.align = &quot;r&quot;,
+            
+            out = &quot;my-table.tex&quot;,
+            align = TRUE,
+            table.placement = &quot;t!&quot;
+            )</code></pre>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:pdftable"></span>
+<img src="pdftable.png" alt="Aspect of the above &quot;my-table.tex&quot; in pdf output." width="100%" />
+<p class="caption">
+Figure 1: Aspect of the above “my-table.tex” in pdf output.
+</p>
+</div>
+</div>
+<div id="advanced" class="section level1">
+<h1>Advanced</h1>
+<p>Time for some advanced stuff.</p>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>Stuff for another post.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p>All the arguments of the function <code>stargazer()</code> can be found <a href="https://www.rdocumentation.org/packages/stargazer/versions/5.2.3/topics/stargazer">here</a>.<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
+<li id="fn3"><p>I don’t understand this behavior! And it took me an hour to figure it out.<a href="#fnref3" class="footnote-back">↩︎</a></p></li>
+<li id="fn4"><p>Recall that you are reading this online. The format is slightly different from the format in the pdf.<a href="#fnref4" class="footnote-back">↩︎</a></p></li>
+<li id="fn5"><p>Various extensions/ file types are possible.<a href="#fnref5" class="footnote-back">↩︎</a></p></li>
+<li id="fn6"><p>Notice that the type of the table is not given by the argument <code>type</code> (I’m not even using it), but by the extension of the file name in <code>out</code>.<a href="#fnref6" class="footnote-back">↩︎</a></p></li>
+<li id="fn7"><p>Wise Rmd users will change the YAML to include,</p>
+<pre class="yaml"><code>header-includes:
+   - \usepackage{dcolumn}</code></pre>
+<a href="#fnref7" class="footnote-back">↩︎</a></li>
+<li id="fn8"><p><code>H</code> is also possible in combination with <code>\usepackage{float}</code>.<a href="#fnref8" class="footnote-back">↩︎</a></p></li>
+</ol>
+</div>
