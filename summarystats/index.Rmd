@@ -7,7 +7,7 @@ tags: ["summary", "statistics", "tables", "{stargazer}"]
 series: ["summary statistics"]
 link-citations: true
 editPost:
-    URL: "https://github.com/AntonioFidalgo/post/tree/master/summarystats"
+    URL: "https://github.com/AntonioFidalgo/post/blob/master/summarystats/index.Rmd"
     Text: "Get this Rmd"
 ---
 
