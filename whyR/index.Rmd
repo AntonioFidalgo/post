@@ -6,7 +6,9 @@ description: "The choice of R is primarily epistemological, not technical."
 categories: ["R"]
 tags: ["why R", "R2D2"]
 link-citations: true
-
+editPost:
+    URL: "https://github.com/AntonioFidalgo/post/blob/master/whyR/index.Rmd"
+    Text: "Rmd Source Code"
 ---
 
 ```{r setup, include=FALSE}
