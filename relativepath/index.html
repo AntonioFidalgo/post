@@ -13,6 +13,9 @@ categories:
 series:
 - figures
 link-citations: yes
+editPost:
+    URL: "https://github.com/AntonioFidalgo/post/blob/master/relativepath/index.Rmd"
+    Text: "Rmd Source Code"
 ---
 
 <script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
@@ -49,7 +52,7 @@ link-citations: yes
 <p>In that case, there is an easy solution: <strong>just put everything in the same folder</strong>, i.e., your Rmd and all your external files.</p>
 <p>Figure <a href="#fig:directory0">1</a> shows this. You decided to call your folder <code>Foofolder</code> and then threw everything in, starting with your Rmd file, <code>IAMhere.Rmd</code>.</p>
 <div class="figure" style="text-align: center"><span style="display:block;" id="fig:directory0"></span>
-<img src="../figures/directory0.png" alt="&quot;Throw-everything-in&quot; folder." width="40%" />
+<img src="directory0.png" alt="&quot;Throw-everything-in&quot; folder." width="40%" />
 <p class="caption">
 Figure 1: “Throw-everything-in” folder.
 </p>
@@ -71,7 +74,7 @@ Figure 1: “Throw-everything-in” folder.
 <p>An external file is “downwards” relative to your Rmd if it is inside a folder contained by the folder of your Rmd.<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a> In other words, the external file is “downwards” if it is in a <strong>sub-folder</strong>.</p>
 <p>It’s easier than it reads! Figure <a href="#fig:directory1">2</a> shows downwards files. For instance, all the .png files are downwards because they are inside a folder, <code>Figures</code>, that is contained by the folder of your Rmd, <code>Foofolder</code>.<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a></p>
 <div class="figure" style="text-align: center"><span style="display:block;" id="fig:directory1"></span>
-<img src="../figures/directory1.png" alt="Organized folder containing other folders. (Splitting of `Data` into `q1` and `q2` is silly and it's meant only for illustration purposes.)" width="40%" />
+<img src="directory1.png" alt="Organized folder containing other folders. (Splitting of `Data` into `q1` and `q2` is silly and it's meant only for illustration purposes.)" width="40%" />
 <p class="caption">
 Figure 2: Organized folder containing other folders. (Splitting of <code>Data</code> into <code>q1</code> and <code>q2</code> is silly and it’s meant only for illustration purposes.)
 </p>
@@ -97,7 +100,7 @@ Figure 2: Organized folder containing other folders. (Splitting of <code>Data</c
 <p>The external file is “upwards” relative to your Rmd if it is in a folder that contains the folder that contains your Rmd. In other words, the external file “upwards” if it is in a <strong>parent</strong> folder.</p>
 <p>Complicated? Look at Figure <a href="#fig:directory2">3</a>. As before, your Rmd is inside <code>Foofolder</code>. But now, the external file that you want to incorporate, <code>my-references.bib</code>, is outside this latter. It’s in the parent folder <code>Myfolders</code> that contains, beyond the .bib, <code>Foofolder</code> and <code>Zoofolder</code>.<a href="#fn9" class="footnote-ref" id="fnref9"><sup>9</sup></a></p>
 <div class="figure" style="text-align: center"><span style="display:block;" id="fig:directory2"></span>
-<img src="../figures/directory2.png" alt="External file (.bib) outside current folder." width="40%" />
+<img src="directory2.png" alt="External file (.bib) outside current folder." width="40%" />
 <p class="caption">
 Figure 3: External file (.bib) outside current folder.
 </p>

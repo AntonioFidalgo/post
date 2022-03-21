@@ -13,6 +13,9 @@ categories:
 series:
 - figures
 link-citations: yes
+editPost:
+    URL: "https://github.com/AntonioFidalgo/post/blob/master/relativepath/index.Rmd"
+    Text: "Rmd Source Code"
 ---
 
 ```{r setup, include=FALSE}
@@ -66,7 +69,7 @@ In that case, there is an easy solution: **just put everything in the same folde
 Figure \@ref(fig:directory0) shows this. You decided to call your folder `Foofolder` and then threw everything in, starting with your Rmd file, `IAMhere.Rmd`.
 
 ```{r directory0, echo=FALSE, fig.align='center', out.width='40%', fig.cap='"Throw-everything-in" folder.' }
-knitr::include_graphics('../figures/directory0.png')
+knitr::include_graphics('directory0.png')
 ```
 
 ## Pros
@@ -95,7 +98,7 @@ An external file is "downwards" relative to your Rmd if it is inside a folder co
 It's easier than it reads! Figure \@ref(fig:directory1) shows downwards files. For instance, all the .png files are downwards because they are inside a folder, `Figures`, that is contained by the folder of your Rmd, `Foofolder`.[^other]   
 
 ```{r directory1, echo=FALSE, fig.align='center', out.width='40%', fig.cap="Organized folder containing other folders. (Splitting of `Data` into `q1` and `q2` is silly and it's meant only for illustration purposes.)" }
-knitr::include_graphics('../figures/directory1.png')
+knitr::include_graphics('directory1.png')
 ```
 
 
@@ -135,7 +138,7 @@ Complicated? Look at Figure \@ref(fig:directory2). As before, your Rmd is inside
 
 
 ```{r directory2, echo=FALSE, fig.align='center', out.width='40%', fig.cap='External file (.bib) outside current folder.' }
-knitr::include_graphics('../figures/directory2.png')
+knitr::include_graphics('directory2.png')
 ```
 
 

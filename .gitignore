@@ -4,6 +4,13 @@
 .Ruserdata
 rsconnect
 
+*.fdb_latexmk
+*.aux
+*.dvi
+*.log
+*.ps
+*.fls
+
 # OS generated files #
 ######################
 .DS_Store
