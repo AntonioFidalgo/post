@@ -10,6 +10,7 @@ rsconnect
 *.log
 *.ps
 *.fls
+*synctex.gz
 
 # OS generated files #
 ######################
