@@ -5,11 +5,14 @@ date: 2022-03-18
 description: "Summary statistics of the relevant variables are often given in tables preceding the model estimation results. This post is about using {stargazer} for that purpose."
 tags: ["summary", "statistics", "tables", "{stargazer}"]
 series: ["summary statistics"]
+categories: ["summary statistics"]
 link-citations: true
 ShowToc: true
+header-includes:
+  - header.html
 editPost:
     URL: "https://github.com/AntonioFidalgo/post/blob/master/summarystats/index.Rmd"
-    Text: "Rmd Source Code"
+    Text: "Rmd Source Code \U0001f4ce"
 ---
 
 <script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
@@ -33,12 +36,12 @@ editPost:
 <div id="my-view" class="section level3 unnumbered">
 <h3>My View</h3>
 <p>I do not use {stargazer} for summary statistics. Instead, I build my own tables with {dplyr} and {kableExtra}.<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> But {stargzer} is so good and so accessible that R users cannot ignore it.</p>
-<p>For instance, a important limitation of the <code>stargazer()</code> function for summary statistics is that it does not include the categorical variables. This actually makes sense, but one could want to see, at least, a count for each category.<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a></p>
+<p>The limitations that I see are on two fronts: the content and the format of the table. About the former, notice that the <code>stargazer()</code> function for summary statistics does not include the categorical variables. This actually makes sense, but one could want to see, at least, a count for each category.<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a> About the latter, your specific needs may not fit one of the pre-determined table formats.<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a></p>
 </div>
 </div>
 <div id="minimal-example" class="section level1">
 <h1>Minimal Example</h1>
-<p>Let’s start with a minimal example that illustrates the usage of some the arguments related to the summary statistics.<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a></p>
+<p>Let’s start with a minimal example that illustrates the usage of some the arguments related to the summary statistics.<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a></p>
 <pre class="r"><code># use chunk option message=FALSE to avoid package info in the output
 library(stargazer)  
 library(dplyr) 
@@ -51,9 +54,9 @@ library(magrittr)</code></pre>
 ```</code></pre>
 <ul>
 <li><code>select()</code> the variables to be included in the summary with a {dplyr} function.</li>
-<li><code>as.data.frame()</code> enters the pipe for security because <code>stargazer()</code> requires a base R data frame, not a tibble,<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a></li>
-<li><code>type</code> for a table takes here a <code>ifelse</code> function so that the code works for all the formats. In a research paper, <code>type='latex'</code> would suffice.<a href="#fn5" class="footnote-ref" id="fnref5"><sup>5</sup></a></li>
-<li><code>label</code>, required for {knitr}-type of cross-referencing, is a patch solution found <a href="https://github.com/rstudio/bookdown/issues/175#issuecomment-422100007">here</a>.<a href="#fn6" class="footnote-ref" id="fnref6"><sup>6</sup></a></li>
+<li><code>as.data.frame()</code> enters the pipe for security because <code>stargazer()</code> requires a base R data frame, not a tibble,<a href="#fn5" class="footnote-ref" id="fnref5"><sup>5</sup></a></li>
+<li><code>type</code> for a table takes here a <code>ifelse</code> function so that the code works for all the formats. In a research paper, <code>type='latex'</code> would suffice.<a href="#fn6" class="footnote-ref" id="fnref6"><sup>6</sup></a></li>
+<li><code>label</code>, required for {knitr}-type of cross-referencing, is a patch solution found <a href="https://github.com/rstudio/bookdown/issues/175#issuecomment-422100007">here</a>.<a href="#fn7" class="footnote-ref" id="fnref7"><sup>7</sup></a></li>
 <li><code>title</code> gives the caption of the table. In a pdf, the caption will typically be preceded by “Table 1:”.</li>
 <li><code>header = FALSE</code> is a weird but necessary requirement: it prevents the package information to be printed in the pdf.</li>
 </ul>
@@ -899,16 +902,16 @@ My notes line 2.
 <p>It is fair to say that {stargzer} was initially designed for academic publications. Many of these latter use <span class="math inline">\(\LaTeX\)</span> for text editing. So here are a few points to specifically address the usage with <span class="math inline">\(\LaTeX.\)</span></p>
 <ul>
 <li><code>out</code> is the solution for a special group of users, those who make the surprising choice of using R for data analysis and a <span class="math inline">\(\LaTeX\)</span> distribution for text editing. But they don’t combine the these two tasks in a Rmd file.<br />
-For this group of users, the {stargazer} table must find its way from the R code to the <span class="math inline">\(\LaTeX\)</span> file. This is achieved with this argument, <code>out</code>. The value of this latter is the name of the file, with extension (!),<a href="#fn7" class="footnote-ref" id="fnref7"><sup>7</sup></a> that will contain the code of the table.<a href="#fn8" class="footnote-ref" id="fnref8"><sup>8</sup></a><br />
+For this group of users, the {stargazer} table must find its way from the R code to the <span class="math inline">\(\LaTeX\)</span> file. This is achieved with this argument, <code>out</code>. The value of this latter is the name of the file, with extension (!),<a href="#fn8" class="footnote-ref" id="fnref8"><sup>8</sup></a> that will contain the code of the table.<a href="#fn9" class="footnote-ref" id="fnref9"><sup>9</sup></a><br />
 </li>
-<li><code>align</code> forces the numbers in the columns to be aligned at the decimal mark. This requires the usage of the <span class="math inline">\(\LaTeX\)</span> package {dcolumn}, to be included in the preamble of the tex file<a href="#fn9" class="footnote-ref" id="fnref9"><sup>9</sup></a></li>
+<li><code>align</code> forces the numbers in the columns to be aligned at the decimal mark. This requires the usage of the <span class="math inline">\(\LaTeX\)</span> package {dcolumn}, to be included in the preamble of the tex file<a href="#fn10" class="footnote-ref" id="fnref10"><sup>10</sup></a></li>
 </ul>
 <pre class="markdown"><code>\usepackage{dcolumn}</code></pre>
 <ul>
-<li><code>table.placement</code> is used to give the placement specifier of the table in the pdf page: <code>h</code>(ere), <code>t</code>(op), <code>b</code>(ottom), <code>p</code>(age), along with the famous <code>!</code> to try to force <span class="math inline">\(\LaTeX\)</span> to override its default behavior.<a href="#fn10" class="footnote-ref" id="fnref10"><sup>10</sup></a></li>
-<li><code>style</code> selects one of the few available styles.<a href="#fn11" class="footnote-ref" id="fnref11"><sup>11</sup></a> They don’t change much for summary statistics. But differ substantially in model estimation tables. Use here for the consistency with this latter.</li>
+<li><code>table.placement</code> is used to give the placement specifier of the table in the pdf page: <code>h</code>(ere), <code>t</code>(op), <code>b</code>(ottom), <code>p</code>(age), along with the famous <code>!</code> to try to force <span class="math inline">\(\LaTeX\)</span> to override its default behavior.<a href="#fn11" class="footnote-ref" id="fnref11"><sup>11</sup></a></li>
+<li><code>style</code> selects one of the few available styles.<a href="#fn12" class="footnote-ref" id="fnref12"><sup>12</sup></a> They don’t change much for summary statistics. But differ substantially in model estimation tables. Use here for the consistency with this latter.</li>
 <li><code>font.size</code>, self-explanatory. <span class="math inline">\(\LaTeX\)</span> users will recall the font sizes such as <code>small</code>, <code>huge</code> or <code>footnotesize</code>.</li>
-<li><code>column.sep.width</code> defaults to 5pt. Since we just talked about size, this may prove useful too.<a href="#fn12" class="footnote-ref" id="fnref12"><sup>12</sup></a></li>
+<li><code>column.sep.width</code> defaults to 5pt. Since we just talked about size, this may prove useful too.<a href="#fn13" class="footnote-ref" id="fnref13"><sup>13</sup></a></li>
 </ul>
 <pre class="r"><code>mtcars %&gt;% 
   select(mpg, cyl, hp, am, gear) %&gt;% 
@@ -949,10 +952,10 @@ Figure 1: Aspect of the above “my-table.tex” in pdf output.
 <p>I play here with two arguments already described above: <code>covariate.labels</code> and <code>notes</code>. The novelty is the compulsory use of the escape character <code>\</code> in front of every <span class="math inline">\(\LaTeX\)</span> function starting with… <code>\</code>.</p>
 <ul>
 <li><code>\textbf{}</code> now needs to be coded as <code>\\textbf{}</code>, <code>\alpha</code> as <code>\\alpha</code>, etc…</li>
-<li><code>\\\\</code> in <code>covariate.labels</code> allows to introduce a line break in the table. Actually, the trick is to split over many lines the label of a variable.<a href="#fn13" class="footnote-ref" id="fnref13"><sup>13</sup></a></li>
+<li><code>\\\\</code> in <code>covariate.labels</code> allows to introduce a line break in the table. Actually, the trick is to split over many lines the label of a variable.<a href="#fn14" class="footnote-ref" id="fnref14"><sup>14</sup></a></li>
 <li><code>notes</code>’s vector is happy to take <span class="math inline">\(\LaTeX\)</span> code. Notice that each element of the vector is independent, hence the need to repeat the appropriately escaped <code>\footnotesize</code>.<br />
 </li>
-<li><code>paste0()</code> is a R function that glues together elements to return a single character string… which is exactly what <code>stargazer()</code> wants for each element of the <code>notes</code> vector. I use it here to illustrate how the notes can contain dynamic elements, i.e., values that are automatically revised when the table is created.<a href="#fn14" class="footnote-ref" id="fnref14"><sup>14</sup></a></li>
+<li><code>paste0()</code> is a R function that glues together elements to return a single character string… which is exactly what <code>stargazer()</code> wants for each element of the <code>notes</code> vector. I use it here to illustrate how the notes can contain dynamic elements, i.e., values that are automatically revised when the table is created.<a href="#fn15" class="footnote-ref" id="fnref15"><sup>15</sup></a></li>
 </ul>
 <pre class="r"><code>mtcars %&gt;% 
   select(mpg, cyl, hp, am, gear) %&gt;% 
@@ -1042,17 +1045,18 @@ Figure 3: Aspect of the above “my-table3.tex” in pdf output.
 <ol>
 <li id="fn1"><p>Stuff for another post.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
 <li id="fn2"><p>For instance, a summary statistics table for the <code>iris</code> data set would not include any information about the variable <code>Species</code> (and its three levels: setosa, versicolor, and virginica).<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
-<li id="fn3"><p>All the arguments of the function <code>stargazer()</code> can be found <a href="https://www.rdocumentation.org/packages/stargazer/versions/5.2.3/topics/stargazer">here</a>.<a href="#fnref3" class="footnote-back">↩︎</a></p></li>
-<li id="fn4"><p>I don’t understand this behavior! And it took me an hour to figure it out.<a href="#fnref4" class="footnote-back">↩︎</a></p></li>
-<li id="fn5"><p>Recall that you are reading this online. The format is slightly different from the format in the pdf.<a href="#fnref5" class="footnote-back">↩︎</a></p></li>
-<li id="fn6"><p>In a research paper, simply give there the label of the table, e.g., <code>label = "my-table-sum01"</code>.<a href="#fnref6" class="footnote-back">↩︎</a></p></li>
-<li id="fn7"><p>Various extensions/ file types are possible.<a href="#fnref7" class="footnote-back">↩︎</a></p></li>
-<li id="fn8"><p>Notice that the type of the table is not given by the argument <code>type</code> (I’m not even using it), but by the extension of the file name in <code>out</code>.<a href="#fnref8" class="footnote-back">↩︎</a></p></li>
-<li id="fn9"><p>Wise Rmd users will change the YAML to include, <code>header-includes:  - \usepackage{dcolumn}</code> (over two lines with appropriate indent).<a href="#fnref9" class="footnote-back">↩︎</a></p></li>
-<li id="fn10"><p><code>H</code> is also possible in combination with <code>\usepackage{float}</code>.<a href="#fnref10" class="footnote-back">↩︎</a></p></li>
-<li id="fn11"><p>Find the list <a href="https://www.rdocumentation.org/packages/stargazer/versions/5.2.3/topics/stargazer_style_list">here.</a><a href="#fnref11" class="footnote-back">↩︎</a></p></li>
-<li id="fn12"><p>But we are really going down the details, now!<a href="#fnref12" class="footnote-back">↩︎</a></p></li>
-<li id="fn13"><p>Recall that <code>\\</code> is used in <span class="math inline">\(\LaTeX\)</span> to break a line (where appropriate). <code>\\\\</code> is simply escaping with <code>\</code> each of these two <code>\</code>.<a href="#fnref13" class="footnote-back">↩︎</a></p></li>
-<li id="fn14"><p>I find this feature great! It opens the door to many possibilities. Recall, this is the advanced section!<a href="#fnref14" class="footnote-back">↩︎</a></p></li>
+<li id="fn3"><p>Notice that I actually endorse limited formatting options. It forces me to focus on the content instead of indulging in refinements of a table that ends up being bad-looking and too complicated.<a href="#fnref3" class="footnote-back">↩︎</a></p></li>
+<li id="fn4"><p>All the arguments of the function <code>stargazer()</code> can be found <a href="https://www.rdocumentation.org/packages/stargazer/versions/5.2.3/topics/stargazer">here</a>.<a href="#fnref4" class="footnote-back">↩︎</a></p></li>
+<li id="fn5"><p>I don’t understand this behavior! And it took me an hour to figure it out.<a href="#fnref5" class="footnote-back">↩︎</a></p></li>
+<li id="fn6"><p>Recall that you are reading this online. The format is slightly different from the format in the pdf.<a href="#fnref6" class="footnote-back">↩︎</a></p></li>
+<li id="fn7"><p>In a research paper, simply give there the label of the table, e.g., <code>label = "my-table-sum01"</code>.<a href="#fnref7" class="footnote-back">↩︎</a></p></li>
+<li id="fn8"><p>Various extensions/ file types are possible.<a href="#fnref8" class="footnote-back">↩︎</a></p></li>
+<li id="fn9"><p>Notice that the type of the table is not given by the argument <code>type</code> (I’m not even using it), but by the extension of the file name in <code>out</code>.<a href="#fnref9" class="footnote-back">↩︎</a></p></li>
+<li id="fn10"><p>Wise Rmd users will change the YAML to include, <code>header-includes:  - \usepackage{dcolumn}</code> (over two lines with appropriate indent).<a href="#fnref10" class="footnote-back">↩︎</a></p></li>
+<li id="fn11"><p><code>H</code> is also possible in combination with <code>\usepackage{float}</code>.<a href="#fnref11" class="footnote-back">↩︎</a></p></li>
+<li id="fn12"><p>Find the list <a href="https://www.rdocumentation.org/packages/stargazer/versions/5.2.3/topics/stargazer_style_list">here.</a><a href="#fnref12" class="footnote-back">↩︎</a></p></li>
+<li id="fn13"><p>But we are really going down the details, now!<a href="#fnref13" class="footnote-back">↩︎</a></p></li>
+<li id="fn14"><p>Recall that <code>\\</code> is used in <span class="math inline">\(\LaTeX\)</span> to break a line (where appropriate). <code>\\\\</code> is simply escaping with <code>\</code> each of these two <code>\</code>.<a href="#fnref14" class="footnote-back">↩︎</a></p></li>
+<li id="fn15"><p>I find this feature great! It opens the door to many possibilities. Recall, this is the advanced section!<a href="#fnref15" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>

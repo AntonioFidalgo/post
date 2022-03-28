@@ -1,0 +1,237 @@
+---
+title: "Estimating a Linear Model"
+author: "Antonio Fidalgo"
+date: 2022-03-26
+description: "The linear model is arguably the most used model in empirical studies. This post is about how to estimate such models in R. Unsurprisingly, it is straighforward, i.e., super easy."
+tags: ["linear model", "ols"]
+categories: ["linear model"]
+link-citations: true
+ShowToc: true
+header-includes:
+  - header.html
+editPost:
+    URL: "https://github.com/AntonioFidalgo/post/blob/master/lm/index.Rmd"
+    Text: "Rmd Source Code \U0001f4ce"
+---
+
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
+
+
+<div id="the-linear-model" class="section level1">
+<h1>The Linear Model</h1>
+<p>We are interested in the following relationship between variables.</p>
+<p><span class="math display" id="eq:lm">\[\begin{equation}
+y_i = \beta_0 + \beta_1x_{1i} + \beta_2x_{2i} + \dots + \beta_px_{pi} + \varepsilon_i
+\tag{1}
+\end{equation}\]</span></p>
+<p>where <span class="math inline">\(y\)</span> is the dependent<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> variable, the <span class="math inline">\(x_1, \dots, x_p\)</span> are the independent<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a> variables and <span class="math inline">\(\varepsilon\)</span> is a random shock to the relationship. The <span class="math inline">\(i\)</span> refers to the observation, with <span class="math inline">\(i= 1, \dots, n.\)</span></p>
+<p>For the discussion below, we will not assume that all the assumptions for a meaningful estimation of the model <a href="#eq:lm">(1)</a> are satisfied. Indeed, meeting the conditions is never strictly necessary from a <em>technical</em> point of view.</p>
+</div>
+<div id="a-formula-a-data-frame" class="section level1">
+<h1>A Formula &amp; a Data Frame</h1>
+<p>The most common technique to estimate model <a href="#eq:lm">(1)</a> is ordinary least squares, <strong>OLS</strong>. In R, this is implemented with the function <code>lm()</code>. The minimal call only takes two arguments: <code>formula</code> and <code>data</code>.</p>
+<p>The <code>data</code> argument simply says in what data frame R should look for the variables mentioned in the formula, e.g., <code>data = mydf</code>.</p>
+<p>The <code>formula</code> is a character string built in the following fashion,</p>
+<pre class="markdown"><code>y ~ x1 + x2 + x3 + x4 + x5</code></pre>
+<p>where, the character <code>~</code> separates the explained variable, on its left, from the explanatory variables, on its right.</p>
+<p>The possible confusing part here is this. The formula requires the character <code>+</code> between the explanatory variables. This is <strong>not because model <a href="#eq:lm">(1)</a> is linearly additive</strong>. It is just a way to list the variables.</p>
+<p>So, here is an example.<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a></p>
+<pre class="r"><code>lm(mpg ~ cyl + hp + gear + am + carb, data = mtcars)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = mpg ~ cyl + hp + gear + am + carb, data = mtcars)
+## 
+## Coefficients:
+## (Intercept)          cyl           hp         gear           am         carb  
+##     24.3300      -0.7824      -0.0238       1.5812       3.3344      -1.0995</code></pre>
+</div>
+<div id="the-lm-object" class="section level1">
+<h1>The <code>lm()</code> Object</h1>
+<p>The return of the function <code>lm()</code> is a object that we will want to use. For this, we will need to assign a name to it as follows</p>
+<pre class="r"><code># assigning the lm() object to the name m1
+m1 &lt;- lm(mpg ~ cyl + hp + gear + am + carb, data = mtcars)</code></pre>
+<p>As you saw above, and I show again below, you don’t get much more than the estimated coefficients when you call it.</p>
+<pre class="r"><code># calling the lm() object by name
+m1 </code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = mpg ~ cyl + hp + gear + am + carb, data = mtcars)
+## 
+## Coefficients:
+## (Intercept)          cyl           hp         gear           am         carb  
+##     24.3300      -0.7824      -0.0238       1.5812       3.3344      -1.0995</code></pre>
+<p>Nor do you get a good or useful printing…</p>
+<div id="summary" class="section level3 unnumbered">
+<h3>summary()</h3>
+<p>Enters the function <code>summary()</code>. It kills two birds with one stone: better printing and further useful pieces of information.</p>
+<pre class="r"><code>sm1 &lt;- summary(m1)
+sm1</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = mpg ~ cyl + hp + gear + am + carb, data = mtcars)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -4.7468 -1.6203 -0.1485  1.8353  5.6868 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) 24.33004    6.54156   3.719 0.000968 ***
+## cyl         -0.78242    0.71721  -1.091 0.285314    
+## hp          -0.02380    0.01758  -1.354 0.187519    
+## gear         1.58121    1.44611   1.093 0.284234    
+## am           3.33445    1.68019   1.985 0.057840 .  
+## carb        -1.09953    0.57213  -1.922 0.065654 .  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 2.724 on 26 degrees of freedom
+## Multiple R-squared:  0.8286, Adjusted R-squared:  0.7957 
+## F-statistic: 25.14 on 5 and 26 DF,  p-value: 3.431e-09</code></pre>
+<p>The output is richer and relatively well printed. But all these numbers… where are they and how can we use them if we are building a dynamic document?</p>
+</div>
+</div>
+<div id="using-the-lm-object" class="section level1">
+<h1>Using the <code>lm()</code> Object</h1>
+<p>Many R objects contain multiple useful other objects. The returns of <code>lm()</code> and <code>summary()</code> certainly do. To get the full list of these “internal” objects, use <code>names()</code>.</p>
+<pre class="r"><code>names(m1)</code></pre>
+<pre><code>##  [1] &quot;coefficients&quot;  &quot;residuals&quot;     &quot;effects&quot;       &quot;rank&quot;         
+##  [5] &quot;fitted.values&quot; &quot;assign&quot;        &quot;qr&quot;            &quot;df.residual&quot;  
+##  [9] &quot;xlevels&quot;       &quot;call&quot;          &quot;terms&quot;         &quot;model&quot;</code></pre>
+<pre class="r"><code>names(sm1)</code></pre>
+<pre><code>##  [1] &quot;call&quot;          &quot;terms&quot;         &quot;residuals&quot;     &quot;coefficients&quot; 
+##  [5] &quot;aliased&quot;       &quot;sigma&quot;         &quot;df&quot;            &quot;r.squared&quot;    
+##  [9] &quot;adj.r.squared&quot; &quot;fstatistic&quot;    &quot;cov.unscaled&quot;</code></pre>
+<p>These calls show that all the numbers in the outputs, and many other as well, can easily be accessed to be used later. For instance:</p>
+<ul>
+<li>We could report that the <span class="math inline">\(R^2\)</span> of the model is 0.8286211 by calling <code>sm1$r.squared</code>.</li>
+<li>We can write that, in the estimated model <a href="#eq:lm">(1)</a>, <span class="math inline">\(\hat{\beta}_0=\)</span> 24.3300388 by using <code>m1$coefficients[1]</code>.</li>
+<li>The <em>p</em>-value for the test about the variable <code>hp</code> is 0.1875186, and it is obtained with <code>sm1$coefficients[3,4]</code>.</li>
+</ul>
+<p>The general way, as you guessed it, is (notice the crucial <code>$</code>)</p>
+<pre class="r"><code>name-of-object$internal-object</code></pre>
+<p>Of course, two of the examples above added some extra <code>[]</code>. This depends on the class of the “internal” object and is necessary because we needed to further subset a part of the “internal” object. For instance, <code>sm1$coefficients</code> is a matrix. To subset it, we give the row and column position(s) that of the coefficient of interest inside the <code>[]</code>.</p>
+<p>Last example. <code>m1</code> contains the fitted values of the model. We could obtain them by using the estimated parameters multiplied by the values of the variables, as follows.</p>
+<pre class="r"><code>library(tibble) # because it prints much better than data.frame
+tibble(fit_method1 = m1$fitted.values,
+       fit_method2 = m1$coefficients[1] + m1$coefficients[2]*mtcars$cyl + m1$coefficients[3] * mtcars$hp + m1$coefficients[4]*mtcars$gear + m1$coefficients[5]*mtcars$am + m1$coefficients[6]*mtcars$carb)</code></pre>
+<pre><code>## # A tibble: 32 × 2
+##    fit_method1 fit_method2
+##          &lt;dbl&gt;       &lt;dbl&gt;
+##  1        22.3        22.3
+##  2        22.3        22.3
+##  3        27.5        27.5
+##  4        20.7        20.7
+##  5        16.5        16.5
+##  6        20.8        20.8
+##  7        12.6        12.6
+##  8        23.9        23.9
+##  9        23.1        23.1
+## 10        18.6        18.6
+## # … with 22 more rows</code></pre>
+</div>
+<div id="factors-not-0s-1s" class="section level1">
+<h1>Factors, Not 0s &amp; 1s</h1>
+<p>Categorical variables are ubiquitous in estimated relationships. For instance, “hourly wage” is often linked to “gender”, “education level”, “civil status”, “geographical area”, …</p>
+<p>How do these “qualitative” variables enter the OLS algorithm that is based in numerical values? Typically by using numeric values 0 and 1 in so-called dummy variables. For instance, one could replace the variable “gender” by a dummy variable “dG” built as follows.</p>
+<p><span class="math display">\[\begin{align*}
+dG &amp;= \begin{cases} 
+1 \quad \text{ if individual is female} \\
+0 \quad\text{ otherwise}
+\end{cases}
+\end{align*}\]</span></p>
+<p>In R, categorical variables are called factors. If the explanatory variable is coded as a factor,<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a> then <code>lm()</code> will automatically create a variable for each level of the categorical variable.</p>
+<p>Let’s see an example. The variable <code>am</code> (automatic versus manual transmission) is currently (wrongly) coded as numeric. Let’s code it to a factor in following way.<a href="#fn5" class="footnote-ref" id="fnref5"><sup>5</sup></a></p>
+<pre class="r"><code>library(dplyr)
+library(magrittr)
+mtcars &lt;- mtcars %&gt;%
+  as_tibble() %&gt;%
+  mutate(am = factor(case_when(
+    am == 1 ~ &quot;manual&quot;,
+    am == 0 ~ &quot;automatic&quot;
+  )))</code></pre>
+<p>Now, let’s estimate again the model for <code>mpg</code>.</p>
+<pre class="r"><code>m2 &lt;- lm(mpg ~ cyl + hp + gear + am + carb, data = mtcars)
+summary(m2)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = mpg ~ cyl + hp + gear + am + carb, data = mtcars)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -4.7468 -1.6203 -0.1485  1.8353  5.6868 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) 24.33004    6.54156   3.719 0.000968 ***
+## cyl         -0.78242    0.71721  -1.091 0.285314    
+## hp          -0.02380    0.01758  -1.354 0.187519    
+## gear         1.58121    1.44611   1.093 0.284234    
+## ammanual     3.33445    1.68019   1.985 0.057840 .  
+## carb        -1.09953    0.57213  -1.922 0.065654 .  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 2.724 on 26 degrees of freedom
+## Multiple R-squared:  0.8286, Adjusted R-squared:  0.7957 
+## F-statistic: 25.14 on 5 and 26 DF,  p-value: 3.431e-09</code></pre>
+<p>The result is the same as for <code>m1</code> because <code>am</code> was already a 0/1 dummy variable. So, unless you really insist in coding variables correctly, this was not a necessary move.</p>
+<p>Notice, however, the new variable appearing in the output: <code>ammanual</code>, i.e., the name of the variable and the level of interest glued together. This will be even more evident in the next example.</p>
+<p>Suppose that you think that the variable <code>cyl</code>, the number of cylinders, is actually a categorical variable. You would if you thought that 8 cylinders implies a category of car that means nothing like “twice a car with 4 cylinders”.</p>
+<p>Let’s recode <code>cyl</code> in a very simple way, this time.</p>
+<pre class="r"><code>mtcars &lt;- mtcars %&gt;%
+  mutate(cyl = factor(cyl))</code></pre>
+<p>And estimate again the model.</p>
+<pre class="r"><code>m3 &lt;- lm(mpg ~ cyl + hp + gear + am + carb, data = mtcars)
+summary(m3)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = mpg ~ cyl + hp + gear + am + carb, data = mtcars)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -4.6419 -1.4080 -0.3493  1.9304  5.4729 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) 21.74753    4.70147   4.626 9.83e-05 ***
+## cyl6        -2.75072    1.79960  -1.529   0.1389    
+## cyl8        -2.15378    2.99729  -0.719   0.4791    
+## hp          -0.03831    0.02204  -1.738   0.0945 .  
+## gear         1.67997    1.44408   1.163   0.2557    
+## ammanual     3.14947    1.68316   1.871   0.0731 .  
+## carb        -0.69976    0.67891  -1.031   0.3125    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 2.715 on 25 degrees of freedom
+## Multiple R-squared:  0.8363, Adjusted R-squared:  0.797 
+## F-statistic: 21.29 on 6 and 25 DF,  p-value: 1.054e-08</code></pre>
+<p>Now, we see better the way <code>lm()</code> uses the factors. The output, shows that two dummy variables were automatically created for levels of interest: <code>cyl6</code> and <code>cyl8</code>. This leaves out the level <code>4</code> of <code>cyl</code> as the reference level,<a href="#fn6" class="footnote-ref" id="fnref6"><sup>6</sup></a> as much as <code>automatic</code> is the reference level for the factor <code>am</code>.</p>
+</div>
+<div id="three-formula-operators-tricks" class="section level1">
+<h1>Three Formula Operators Tricks</h1>
+<p>Recall that the <code>+</code> has its own meaning in the formula, which is <strong>not “plus something”</strong>. Actually, this is a general feature: operators in the formulas, such as <code>+</code>, <code>*</code>, <code>^</code>, etc, they don’t mean what we usually think think they mean.</p>
+<ul>
+<li>But then, if we can’t use <code>^</code> in the formula to mean the “power”, what can we do to still include the power of a variable as an explanatory variable?<a href="#fn7" class="footnote-ref" id="fnref7"><sup>7</sup></a> One option<a href="#fn8" class="footnote-ref" id="fnref8"><sup>8</sup></a> is to use the function <code>I()</code> as in,</li>
+</ul>
+<pre class="r"><code>y ~ x1 + x2 + x3 + I(x3^2) + x4 + x5</code></pre>
+<p>Thanks to <code>I()</code>, the <code>^</code> is now interpreted as a power and not as a formula operator, ans we have just included the square of the variable <code>x3</code> as an explanatory variable.</p>
+<ul>
+<li>The formula operator <code>*</code> introduces interaction effects between the variables.</li>
+<li><code>- 1</code> in the formula suppresses the constant term (intercept) in the model.</li>
+</ul>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>Explained, response, …<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p>Explanatory, regressors, covariates, …<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
+<li id="fn3"><p>Again, please recall that we are not assuming that the usual assumptions are met. So, I do not pretend that this model is an correct model.<a href="#fnref3" class="footnote-back">↩︎</a></p></li>
+<li id="fn4"><p>It absolutely must be coded as a factor if it is a categorical variables.<a href="#fnref4" class="footnote-back">↩︎</a></p></li>
+<li id="fn5"><p>This is arguably more involve than necessary. Recall, <code>as_tibble</code> is simply for nicer printing of the output.<a href="#fnref5" class="footnote-back">↩︎</a></p></li>
+<li id="fn6"><p>Meaning that the coefficients for <code>cyl6</code> and <code>cyl8</code> should be interpreted as the effects, other things equal, of 6 or 8 cylinders compared to the case of 4 cylinders.<a href="#fnref6" class="footnote-back">↩︎</a></p></li>
+<li id="fn7"><p>Notice that this is actually a very common practice. For instance, researchers often add the square of a variable such as “age” to capture hump-shape earnings profiles over the lifetime of the individuals.<a href="#fnref7" class="footnote-back">↩︎</a></p></li>
+<li id="fn8"><p>The other option, often cited as superior, is to use the polynomial function <code>poly()</code>.<a href="#fnref8" class="footnote-back">↩︎</a></p></li>
+</ol>
+</div>
