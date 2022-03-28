@@ -1,0 +1,213 @@
+---
+title: "Estimating a Linear Model"
+author: "Antonio Fidalgo"
+date: 2022-03-26
+description: "The linear model is arguably the most used model in empirical studies. This post is about how to estimate such models in R. Unsurprisingly, it is straighforward, i.e., super easy."
+tags: ["linear model", "ols"]
+categories: ["linear model"]
+link-citations: true
+ShowToc: true
+header-includes:
+  - header.html
+editPost:
+    URL: "https://github.com/AntonioFidalgo/post/blob/master/lm/index.Rmd"
+    Text: "Rmd Source Code \U0001f4ce"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = FALSE, echo = TRUE)
+```
+
+
+# The Linear Model
+
+We are interested in the following relationship between variables.
+
+\begin{equation}
+y_i = \beta_0 + \beta_1x_{1i} + \beta_2x_{2i} + \dots + \beta_px_{pi} + \varepsilon_i
+(\#eq:lm)
+\end{equation}
+
+where $y$ is the dependent^[Explained, response, ...] variable, the $x_1, \dots, x_p$ are the independent^[Explanatory, regressors, covariates, ...] variables and $\varepsilon$ is a random shock to the relationship. The $i$ refers to the observation, with $i= 1, \dots, n.$  
+
+For the discussion below, we will not assume that all the assumptions for a meaningful estimation of the model \@ref(eq:lm) are satisfied. Indeed, meeting the conditions is never strictly necessary from a _technical_ point of view. 
+
+
+# A Formula & a Data Frame
+
+The most common technique to estimate model \@ref(eq:lm) is ordinary least squares, **OLS**.  In R, this is implemented with the function `lm()`. The minimal call only takes two arguments: `formula` and `data`.  
+
+The `data` argument simply says in what data frame R should look for the variables mentioned in the formula, e.g., `data = mydf`.  
+
+The `formula` is a character string built in the following fashion,
+
+```markdown
+y ~ x1 + x2 + x3 + x4 + x5
+```
+
+where, the character `~` separates the explained variable, on its left, from the explanatory variables, on its right.   
+
+The possible confusing part here is this. The formula requires the character `+` between the explanatory variables. This is **not because model \@ref(eq:lm) is linearly additive**. It is just a way to list the variables.
+
+So, here is an example.^[Again, please recall that we are not assuming that the usual assumptions are met. So, I do not pretend that this model is an correct model.]
+
+```{r, echo=TRUE}
+lm(mpg ~ cyl + hp + gear + am + carb, data = mtcars)
+```
+
+
+# The `lm()` Object
+
+The return of the function `lm()` is a object that we will want to use. For this, we will need to assign a name to it as follows
+
+```{r}
+# assigning the lm() object to the name m1
+m1 <- lm(mpg ~ cyl + hp + gear + am + carb, data = mtcars)
+```
+
+As you saw above, and I show again below, you don't get much more than the estimated coefficients when you call it. 
+
+```{r}
+# calling the lm() object by name
+m1 
+```
+
+Nor do you get a good or useful printing...
+
+### summary() {-}
+
+Enters the function `summary()`. It kills two birds with one stone: better printing and further useful pieces of information. 
+
+```{r}
+sm1 <- summary(m1)
+sm1
+```
+
+The output is richer and relatively well printed. But all these numbers... where are they and how can we use them if we are building a dynamic document?
+
+
+
+# Using the `lm()` Object
+
+Many R objects contain multiple useful other objects. The returns of `lm()` and `summary()` certainly do. To get the full list of these "internal" objects, use `names()`.
+
+```{r, collapse=FALSE}
+names(m1)
+names(sm1)
+```
+
+
+These calls show that all the numbers in the outputs, and many other as well, can easily be accessed to be used later. For instance:
+
+- We could report that the $R^2$ of the model is `r sm1$r.squared` by calling `sm1$r.squared`.
+- We can write that, in the estimated model \@ref(eq:lm),  $\hat{\beta}_0=$ `r m1$coefficients[1]` by using `m1$coefficients[1]`.
+- The _p_-value for the test about the variable `hp` is `r sm1$coefficients[3,4]`, and it is obtained with `sm1$coefficients[3,4]`.
+
+The general way, as you guessed it, is (notice the crucial `$`)
+
+```{r, eval=FALSE}
+name-of-object$internal-object
+```
+
+Of course, two of the examples above added some extra `[]`. This depends on the class of the "internal" object and is necessary because we needed to further subset a part of the "internal" object.  For instance, `sm1$coefficients` is a matrix. To subset it, we give the row and column position(s) that of the coefficient of interest inside the `[]`.
+
+Last example. `m1` contains the fitted values of the model. We could obtain them by using the estimated parameters multiplied by the values of the variables, as follows.
+
+```{r}
+library(tibble) # because it prints much better than data.frame
+tibble(fit_method1 = m1$fitted.values,
+       fit_method2 = m1$coefficients[1] + m1$coefficients[2]*mtcars$cyl + m1$coefficients[3] * mtcars$hp + m1$coefficients[4]*mtcars$gear + m1$coefficients[5]*mtcars$am + m1$coefficients[6]*mtcars$carb)
+```
+
+
+# Factors, Not 0s & 1s
+
+Categorical variables are ubiquitous in estimated relationships. For instance, "hourly wage" is often linked to  "gender", "education level", "civil status", "geographical area", ...    
+
+How do these "qualitative" variables enter the OLS algorithm that is based in numerical values? Typically  by using numeric values 0 and 1 in so-called dummy variables. For instance, one could replace the variable "gender" by a dummy variable "dG" built as follows.
+
+\begin{align*}
+dG &= \begin{cases} 
+1 \quad \text{ if individual is female} \\
+0 \quad\text{ otherwise}
+\end{cases}
+\end{align*}
+
+In R, categorical variables are called factors. If the explanatory variable is coded as a factor,^[It absolutely must be coded as a factor if it is a categorical variables.] then `lm()` will automatically create a variable for each level of the categorical variable. 
+
+Let's see an example. The variable `am` (automatic versus manual transmission) is currently (wrongly) coded as numeric. Let's code it to a factor in following way.^[This is arguably more involve than necessary. Recall, `as_tibble` is simply for nicer printing of the output.]
+
+```{r, message=FALSE}
+library(dplyr)
+library(magrittr)
+mtcars <- mtcars %>%
+  as_tibble() %>%
+  mutate(am = factor(case_when(
+    am == 1 ~ "manual",
+    am == 0 ~ "automatic"
+  )))
+```
+
+Now, let's estimate again the model for `mpg`. 
+
+```{r}
+m2 <- lm(mpg ~ cyl + hp + gear + am + carb, data = mtcars)
+summary(m2)
+```
+
+The result is the same as for `m1` because `am` was already a 0/1 dummy variable. So, unless you really insist in coding variables correctly, this was not a necessary move.  
+
+Notice, however, the new variable appearing in the output: `ammanual`, i.e., the name of the variable and the level of interest glued together. This will be even more evident in the next example.   
+
+
+Suppose that you think that the variable `cyl`, the number of cylinders, is actually a categorical variable. You would if you thought that 8 cylinders implies a category of car that means nothing like "twice a car with 4 cylinders". 
+
+Let's recode `cyl` in a very simple way, this time.
+
+```{r}
+mtcars <- mtcars %>%
+  mutate(cyl = factor(cyl))
+```
+
+And estimate again the model.
+
+```{r}
+m3 <- lm(mpg ~ cyl + hp + gear + am + carb, data = mtcars)
+summary(m3)
+```
+
+Now, we see better the way `lm()` uses the factors. The output, shows that two dummy variables were automatically created for levels of interest:  `cyl6` and `cyl8`. This leaves out the level `4` of `cyl` as the reference level,^[Meaning that the coefficients for `cyl6` and `cyl8` should be interpreted as the effects, other things equal, of 6 or 8 cylinders compared to the case of 4 cylinders.] as much as `automatic` is the reference level for  the factor `am`.  
+
+
+
+# Three Formula Operators Tricks
+
+Recall that the `+` has its own meaning in the formula, which is **not "plus something"**. Actually, this is a general feature: operators in the formulas, such as `+`, `*`, `^`, etc, they don't mean what we usually think think they mean.   
+
+- But then, if we can't use `^` in the formula to mean the "power", what can we do to still include the power of a variable as an explanatory variable?^[Notice that this is actually a very common practice. For instance, researchers often add the square of a variable such as "age" to capture hump-shape earnings profiles over the lifetime of the individuals.] One option^[The other option, often cited as superior, is to use the polynomial function `poly()`.] is to use the function `I()` as in,
+
+```{r, eval=FALSE}
+y ~ x1 + x2 + x3 + I(x3^2) + x4 + x5
+```
+
+  Thanks to `I()`, the `^` is now interpreted as a power and not as a formula operator, ans we have just included the square of the variable `x3` as an explanatory variable.
+    
+- The formula operator `*`  introduces interaction effects between the variables.
+- `- 1` in the formula suppresses the constant term (intercept) in the model. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
