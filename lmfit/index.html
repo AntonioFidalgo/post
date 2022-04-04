@@ -1,0 +1,337 @@
+---
+title: "Plotting the Linear Fit"
+author: "Antonio Fidalgo"
+date: 2022-03-28
+description: "Once we have the estimated the parameters of the linear model, we can draw a correspoonding linear fit in any relevant quadrant. This post shows how."
+tags: ["linear model", "ols", "plot", "fit"]
+categories: ["linear model", "plot"]
+link-citations: true
+ShowToc: true
+editPost:
+    URL: "https://github.com/AntonioFidalgo/post/blob/master/lmfit/index.Rmd"
+    Text: "Rmd Source Code \U0001f4ce"
+---
+
+
+
+<div id="fitted-values-not-what-we-want-here" class="section level1">
+<h1>Fitted Values: Not What We Want Here</h1>
+<p>We estimated a linear relationship and obtained the estimates of the parameters, <span class="math inline">\(\hat{\beta}\)</span>’s. With them, we can now calculate the fitted values, i.e., what the model would predict for the given values of the <span class="math inline">\(x_i\)</span>’s, the explanatory variables. We write these fitted values <span class="math inline">\(\hat{y}_i\)</span>.</p>
+<p><span class="math display" id="eq:fit">\[\begin{equation}
+\hat{y}_i = \hat{\beta}_0 + \hat{\beta}_1x_{1i} + \hat{\beta}_2x_{2i} + \dots + \hat{\beta}_px_{pi} 
+\tag{1}
+\end{equation}\]</span></p>
+<p>The problem of the visualization of the linear fit should be clear. In quadrant, we can use the vertical axis for the <span class="math inline">\(\hat{y}_i\)</span>, and also for the <span class="math inline">\(y_i\)</span>. But what variable goes in the horizontal axis, when we have so many explanatory variables to chose from?</p>
+<p>Let’s use again the following linear model, after some changes in classes for a couple of variables.</p>
+<pre class="r"><code>library(dplyr)
+library(magrittr)
+
+mtcars &lt;- mtcars %&gt;%
+  mutate(cyl = factor(cyl),
+         am = factor(case_when(
+           am == 1 ~ &quot;manual&quot;,
+           am == 0 ~ &quot;automatic&quot;
+           )))
+
+m1 &lt;- lm(mpg ~ disp + hp + I(hp^2) + cyl + am + carb, data = mtcars)
+summary(m1)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = mpg ~ disp + hp + I(hp^2) + cyl + am + carb, data = mtcars)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -4.4133 -1.5798 -0.2248  1.2732  4.8636 
+## 
+## Coefficients:
+##               Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) 33.5906737  3.5429733   9.481 1.38e-09 ***
+## disp        -0.0160481  0.0106143  -1.512   0.1436    
+## hp          -0.0934458  0.0499207  -1.872   0.0735 .  
+## I(hp^2)      0.0001842  0.0001141   1.615   0.1195    
+## cyl6        -1.0561395  1.9132951  -0.552   0.5861    
+## cyl8         0.4670087  3.1152691   0.150   0.8821    
+## ammanual     3.2270059  1.3508942   2.389   0.0251 *  
+## carb        -0.7737664  0.6160790  -1.256   0.2212    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 2.57 on 24 degrees of freedom
+## Multiple R-squared:  0.8592, Adjusted R-squared:  0.8181 
+## F-statistic: 20.92 on 7 and 24 DF,  p-value: 9.021e-09</code></pre>
+<p>The plot of the fitted values, with one of the explanatory variables in the horizontal axis (here <code>disp</code>), would show an erratic pattern.</p>
+<pre class="r"><code>library(ggplot2)
+set.seed(42)
+
+mtcars %&gt;%
+  mutate(mpg.fit1 = m1$fitted.values) %&gt;%
+  ggplot(aes(x= disp, y=mpg)) +
+  geom_point() +
+  geom_point(data=sample_n(mtcars, 1), 
+             pch=21, size=8, color=&quot;red&quot;) +
+  geom_line(aes(x= disp, y=mpg.fit1), color= &quot;blue&quot;)   </code></pre>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:fit01"></span>
+<img src="{{< blogdown/postref >}}index_files/figure-html/fit01-1.png" alt="Typical picture of fitted values." width="66%" />
+<p class="caption">
+Figure 1: Typical picture of fitted values.
+</p>
+</div>
+<p>The reason should be clear. The line of fitted values connects all the <span class="math inline">\(\hat{y}_i\)</span>’s (notice the <span class="math inline">\(i\)</span>) which depend on the values of the <span class="math inline">\(x\)</span>’s <strong>for that observation</strong> <span class="math inline">\(i\)</span>.</p>
+<p>For instance, here is one of the <span class="math inline">\(n\)</span> observations along with the actual <code>mpg</code> value and the fitted value for this observation. Notice that the observation is signaled in red in Figure <a href="#fig:fit01">1</a>.</p>
+<pre class="r"><code>set.seed(42)
+mtcars %&gt;%
+  select(disp , hp,  cyl , am , carb, mpg) %&gt;%
+  mutate(mpg.fit1 = m1$fitted.values) %&gt;%
+  sample_n(1)</code></pre>
+<pre><code>##                   disp  hp cyl        am carb  mpg mpg.fit1
+## Chrysler Imperial  440 230   8 automatic    4 14.7 12.15224</code></pre>
+<p>Given the values for the explanatory variables, along with the coefficients in <code>m1</code> above, we can easily verify that the fitted value is correct.</p>
+<p>33.5906737 + (-0.0160481) <span class="math inline">\(\cdot\)</span> 440 + (-0.0934458) <span class="math inline">\(\cdot\)</span> 230 + (0.1841838/1000) <span class="math inline">\(\cdot\)</span> 230<sup>2</sup> + (-1.0561395) <span class="math inline">\(\cdot\)</span> 0 + 0.4670087 <span class="math inline">\(\cdot\)</span> 1 + 3.2270059 <span class="math inline">\(\cdot\)</span> 0 + (-0.7737664) <span class="math inline">\(\cdot\)</span> 4 = 12.15224.</p>
+</div>
+<div id="predictions-based-on-the-model-estimates-predict-newdata" class="section level1">
+<h1>Predictions Based on the Model Estimates: <code>predict()</code> &amp; <code>newdata</code></h1>
+<p>The model’s fitted values can be seen as a particular case of predictions based on the model estimates. As said above, they are the values predicted by the model given the values of the <span class="math inline">\(x\)</span>’s in the sample.</p>
+<p>But, of course, you can use the model to predict the dependent variable for any set of values of the dependent variable. For that purpose you can use the function <code>predict()</code>.</p>
+<p>The usage of <code>predict()</code> that I show here only uses two arguments:<br />
+- a previously estimated model,
+- a data frame giving the values of the <span class="math inline">\(x\)</span>’s for which you want a prediction of the model; the argument is called <code>newdata</code>.</p>
+<p>Here is an example where I actually provide the same observation of the sample as above. Notice that I create a new data frame.</p>
+<pre class="r"><code>set.seed(42)
+new.df.A &lt;- mtcars %&gt;%
+  select(disp , hp,  cyl , am , carb) %&gt;%
+  sample_n(1)
+new.df.A</code></pre>
+<pre><code>##                   disp  hp cyl        am carb
+## Chrysler Imperial  440 230   8 automatic    4</code></pre>
+<pre class="r"><code>pred.A &lt;- predict(m1, newdata = new.df.A)
+pred.A</code></pre>
+<pre><code>## Chrysler Imperial 
+##          12.15224</code></pre>
+<p>As you can see, the prediction is exactly the same as above, both the “fitted-values” way or the “manually-calculated” way.</p>
+<p>In a second example, I make up the values of the <span class="math inline">\(x\)</span>’s. Notice that I need to use:</p>
+<ul>
+<li>the appropriate names of the variables from the originally estimated model,</li>
+<li>for the factor variables, I must give one of the original levels of the categorical variable, as a character string.</li>
+</ul>
+<pre class="r"><code>new.df.B &lt;- tibble(disp = 500,
+                   hp = 250,
+                   cyl = &quot;6&quot;,
+                   am = &quot;manual&quot;,
+                   carb = 4)
+new.df.B</code></pre>
+<pre><code>## # A tibble: 1 × 5
+##    disp    hp cyl   am      carb
+##   &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;  &lt;dbl&gt;
+## 1   500   250 6     manual     4</code></pre>
+<pre class="r"><code>pred.B &lt;- predict(m1, newdata = new.df.B)
+pred.B</code></pre>
+<pre><code>##        1 
+## 12.79246</code></pre>
+<p>As a final example, notice how I ask for <span class="math inline">\(k=6\)</span> predictions, for <span class="math inline">\(k=6\)</span> values of one of the explanatory variables while I don’t change the value of the other variables. You can see it below when I call the new data frame.</p>
+<pre class="r"><code>new.df.C &lt;- tibble(disp = c(0,100, 200, 300, 400, 500),
+                   hp = 250,
+                   cyl = &quot;6&quot;,
+                   am = &quot;manual&quot;,
+                   carb = 4)
+new.df.C</code></pre>
+<pre><code>## # A tibble: 6 × 5
+##    disp    hp cyl   am      carb
+##   &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;  &lt;dbl&gt;
+## 1     0   250 6     manual     4
+## 2   100   250 6     manual     4
+## 3   200   250 6     manual     4
+## 4   300   250 6     manual     4
+## 5   400   250 6     manual     4
+## 6   500   250 6     manual     4</code></pre>
+<pre class="r"><code>pred.C &lt;- predict(m1, newdata = new.df.C)
+pred.C</code></pre>
+<pre><code>##        1        2        3        4        5        6 
+## 20.81651 19.21170 17.60689 16.00208 14.39727 12.79246</code></pre>
+</div>
+<div id="getting-a-straight-line" class="section level1">
+<h1>Getting a Straight Line</h1>
+<p>Our goal is to draw a straight line in the plot above. In other words, we want a line with a constant slope equal to the estimated <span class="math inline">\(\hat{\beta}\)</span> coefficient.</p>
+<p>To better understand how we obtain it, recall that the coefficient is interpreted as the marginal effect of the variable <strong>other things equal</strong>. The problem with the plot above was that, precisely, the other things, i.e., the other variables were not kept constant, but varied with each observation.</p>
+<p>In other words, we must:</p>
+<ul>
+<li>ensure that “other things equal” condition is satisfied by making the values of the remaining variables constant,</li>
+<li>let the variable on the horizontal axis run free.</li>
+</ul>
+<p>The only remaining question is: constant at what value?<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> A common candidate is the mean, if the variable is numeric, or the mode, if the variable is categorical. But any other value is acceptable.</p>
+<p>Thanks to the section above, you now know how to solve this: use the function <code>predict()</code> and an appropriate <code>newdata</code>. Here is an example.</p>
+<p>Notice that, because I’m lazy, I first create a function that will return either the mean or the mode of the variable, depending on the type of vector.</p>
+<pre class="r"><code>mean.or.mode &lt;- function(x) {
+  if (is.factor(x)) {
+        tq = unclass(table(x))
+        j = which(tq == max(tq))[1]
+        sort(unique(x))[j]
+    }
+    else {
+        mean(x, na.rm = TRUE)
+    }
+}</code></pre>
+<p>Then I create the “other things equal except <code>disp</code>”.</p>
+<pre class="r"><code>new.df.D &lt;- mtcars %&gt;%
+  select(disp , hp,  cyl , am , carb, mpg) %&gt;%
+  mutate(disp = disp, # keeps the value of disp in the sample
+         hp =  mean.or.mode(hp),
+         cyl = mean.or.mode(cyl),
+         am = mean.or.mode(am),
+         carb = mean.or.mode(carb)
+         )
+new.df.D</code></pre>
+<pre><code>##                      disp       hp cyl        am   carb  mpg
+## Mazda RX4           160.0 146.6875   8 automatic 2.8125 21.0
+## Mazda RX4 Wag       160.0 146.6875   8 automatic 2.8125 21.0
+## Datsun 710          108.0 146.6875   8 automatic 2.8125 22.8
+## Hornet 4 Drive      258.0 146.6875   8 automatic 2.8125 21.4
+## Hornet Sportabout   360.0 146.6875   8 automatic 2.8125 18.7
+## Valiant             225.0 146.6875   8 automatic 2.8125 18.1
+## Duster 360          360.0 146.6875   8 automatic 2.8125 14.3
+## Merc 240D           146.7 146.6875   8 automatic 2.8125 24.4
+## Merc 230            140.8 146.6875   8 automatic 2.8125 22.8
+## Merc 280            167.6 146.6875   8 automatic 2.8125 19.2
+## Merc 280C           167.6 146.6875   8 automatic 2.8125 17.8
+## Merc 450SE          275.8 146.6875   8 automatic 2.8125 16.4
+## Merc 450SL          275.8 146.6875   8 automatic 2.8125 17.3
+## Merc 450SLC         275.8 146.6875   8 automatic 2.8125 15.2
+## Cadillac Fleetwood  472.0 146.6875   8 automatic 2.8125 10.4
+## Lincoln Continental 460.0 146.6875   8 automatic 2.8125 10.4
+## Chrysler Imperial   440.0 146.6875   8 automatic 2.8125 14.7
+## Fiat 128             78.7 146.6875   8 automatic 2.8125 32.4
+## Honda Civic          75.7 146.6875   8 automatic 2.8125 30.4
+## Toyota Corolla       71.1 146.6875   8 automatic 2.8125 33.9
+## Toyota Corona       120.1 146.6875   8 automatic 2.8125 21.5
+## Dodge Challenger    318.0 146.6875   8 automatic 2.8125 15.5
+## AMC Javelin         304.0 146.6875   8 automatic 2.8125 15.2
+## Camaro Z28          350.0 146.6875   8 automatic 2.8125 13.3
+## Pontiac Firebird    400.0 146.6875   8 automatic 2.8125 19.2
+## Fiat X1-9            79.0 146.6875   8 automatic 2.8125 27.3
+## Porsche 914-2       120.3 146.6875   8 automatic 2.8125 26.0
+## Lotus Europa         95.1 146.6875   8 automatic 2.8125 30.4
+## Ford Pantera L      351.0 146.6875   8 automatic 2.8125 15.8
+## Ferrari Dino        145.0 146.6875   8 automatic 2.8125 19.7
+## Maserati Bora       301.0 146.6875   8 automatic 2.8125 15.0
+## Volvo 142E          121.0 146.6875   8 automatic 2.8125 21.4</code></pre>
+<p>Finally, I used the new data for predictions (and add it them to the original data, but this is not the only/best way of doing it).</p>
+<pre class="r"><code>mtcars &lt;- mtcars %&gt;%
+  mutate(pred.D = predict(m1, newdata = new.df.D))</code></pre>
+<p>We can now plot the straight line.</p>
+<pre class="r"><code>mtcars %&gt;%
+  ggplot(aes(x= disp, y=mpg)) +
+  geom_point() +
+  geom_line(aes(x= disp, y=pred.D), color= &quot;red&quot;) </code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+</div>
+<div id="a-straight-line-for-each-level" class="section level1">
+<h1>A Straight Line for Each Level</h1>
+<p>Above, we fixed the values of the remaining variables at their mean or mode. You know that this is choice, though popular, is still a bit arbitrary. We could have taken any value, for instance,</p>
+<ul>
+<li>any percentile of the numeric variables,</li>
+<li>any level of the categorical variables,</li>
+<li>etc.</li>
+</ul>
+<p>For each case, we could obtain a straight line, i.e., a fit.</p>
+<p>But then, if we can get a line for each level of the categorical variable, why not draw them all on the plot? That is what I do here.</p>
+<p>First, I create a new evaluation data for <strong>each</strong> of the levels. The variable <code>am</code> has the levels:</p>
+<pre class="r"><code>library(forcats)
+fct_unique(mtcars$am)</code></pre>
+<pre><code>## [1] automatic manual   
+## Levels: automatic manual</code></pre>
+<p>So, I create two evaluation data sets.</p>
+<pre class="r"><code>new.df.E.man &lt;- mtcars %&gt;%
+  select(disp , hp,  cyl , am , carb, mpg) %&gt;%
+  mutate(disp = disp, # keeps the value of disp in the sample
+         hp =  mean.or.mode(hp),
+         cyl = mean.or.mode(cyl),
+         am = &quot;manual&quot;,
+         carb = mean.or.mode(carb)
+         )
+
+new.df.E.aut &lt;- mtcars %&gt;%
+  select(disp , hp,  cyl , am , carb, mpg) %&gt;%
+  mutate(disp = disp, # keeps the value of disp in the sample
+         hp =  mean.or.mode(hp),
+         cyl = mean.or.mode(cyl),
+         am = &quot;automatic&quot;,
+         carb = mean.or.mode(carb)
+         )</code></pre>
+<p>Based on these data sets, I calculate two fits.</p>
+<pre class="r"><code>mtcars &lt;- mtcars %&gt;%
+  mutate(pred.E.man = predict(m1, newdata = new.df.E.man),
+         pred.E.aut = predict(m1, newdata = new.df.E.aut))</code></pre>
+<p>As for the plotting, I will chose here a straightforward way version:<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a> each level’s fit goes in one <code>geom_line</code>.</p>
+<pre class="r"><code>mtcars %&gt;%
+  ggplot(aes(x= disp, y=mpg)) +
+  geom_point() +
+  geom_line(aes(x= disp, y=pred.E.man), color= &quot;blue&quot;) +
+  annotate(&quot;text&quot;, x= 450, y= 20, color = &quot;blue&quot;, label = &quot;manual&quot;) +
+  geom_line(aes(x= disp, y=pred.E.aut), color= &quot;red&quot;) +
+  annotate(&quot;text&quot;, x= 450, y= 12, color = &quot;red&quot;, label = &quot;automatic&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<p>The two lines are “obviously” parallel. We can even say more. The vertical distance between the two lines is the coefficient for <code>ammanual</code> in model <code>m1</code>, i.e., 3.2270059.</p>
+</div>
+<div id="fit-with-polynomial" class="section level1">
+<h1>Fit with Polynomial</h1>
+<p>This is a slightly more advanced topic. It deals with the case where the variable that we want to use in the horizontal axis enters the model with a power, e.g., <code>^2</code>. This is the case with the variable <code>hp</code> in the model <code>m1</code> above and I will use it in the illustration below.</p>
+<p>Coda: The fit cannot be a straight line because the prediction uses <code>hp</code> and <code>hp^2</code>!</p>
+<p>The procedure is the same as above, though now the variable that does <strong>not</strong> stay constant is <code>hp</code>. First, create a new evaluation data set.</p>
+<pre class="r"><code>new.df.F &lt;- mtcars %&gt;%
+  select(disp , hp,  cyl , am , carb, mpg) %&gt;%
+  mutate(hp = hp, # keeps the value of hp in the sample
+         disp =  mean.or.mode(disp),
+         cyl = mean.or.mode(cyl),
+         am = mean.or.mode(am),
+         carb = mean.or.mode(carb)
+         )
+new.df.F</code></pre>
+<pre><code>##                         disp  hp cyl        am   carb  mpg
+## Mazda RX4           230.7219 110   8 automatic 2.8125 21.0
+## Mazda RX4 Wag       230.7219 110   8 automatic 2.8125 21.0
+## Datsun 710          230.7219  93   8 automatic 2.8125 22.8
+## Hornet 4 Drive      230.7219 110   8 automatic 2.8125 21.4
+## Hornet Sportabout   230.7219 175   8 automatic 2.8125 18.7
+## Valiant             230.7219 105   8 automatic 2.8125 18.1
+## Duster 360          230.7219 245   8 automatic 2.8125 14.3
+## Merc 240D           230.7219  62   8 automatic 2.8125 24.4
+## Merc 230            230.7219  95   8 automatic 2.8125 22.8
+## Merc 280            230.7219 123   8 automatic 2.8125 19.2
+## Merc 280C           230.7219 123   8 automatic 2.8125 17.8
+## Merc 450SE          230.7219 180   8 automatic 2.8125 16.4
+## Merc 450SL          230.7219 180   8 automatic 2.8125 17.3
+## Merc 450SLC         230.7219 180   8 automatic 2.8125 15.2
+## Cadillac Fleetwood  230.7219 205   8 automatic 2.8125 10.4
+## Lincoln Continental 230.7219 215   8 automatic 2.8125 10.4
+## Chrysler Imperial   230.7219 230   8 automatic 2.8125 14.7
+## Fiat 128            230.7219  66   8 automatic 2.8125 32.4
+## Honda Civic         230.7219  52   8 automatic 2.8125 30.4
+## Toyota Corolla      230.7219  65   8 automatic 2.8125 33.9
+## Toyota Corona       230.7219  97   8 automatic 2.8125 21.5
+## Dodge Challenger    230.7219 150   8 automatic 2.8125 15.5
+## AMC Javelin         230.7219 150   8 automatic 2.8125 15.2
+## Camaro Z28          230.7219 245   8 automatic 2.8125 13.3
+## Pontiac Firebird    230.7219 175   8 automatic 2.8125 19.2
+## Fiat X1-9           230.7219  66   8 automatic 2.8125 27.3
+## Porsche 914-2       230.7219  91   8 automatic 2.8125 26.0
+## Lotus Europa        230.7219 113   8 automatic 2.8125 30.4
+## Ford Pantera L      230.7219 264   8 automatic 2.8125 15.8
+## Ferrari Dino        230.7219 175   8 automatic 2.8125 19.7
+## Maserati Bora       230.7219 335   8 automatic 2.8125 15.0
+## Volvo 142E          230.7219 109   8 automatic 2.8125 21.4</code></pre>
+<p>Then, make the prediction (adding it to the original data set, here).</p>
+<pre class="r"><code>mtcars &lt;- mtcars %&gt;%
+  mutate(pred.F = predict(m1, newdata = new.df.F))</code></pre>
+<p>We can now plot the <strong>non</strong>-straight line.</p>
+<pre class="r"><code>mtcars %&gt;%
+  ggplot(aes(x= hp, y=mpg)) +
+  geom_point() +
+  geom_line(aes(x=hp, y=pred.F), color= &quot;red&quot;) </code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>If you want to be picky, you could bring another question. What values do we give for the variable on the horizontal axis? One candidate is to use the values in the sample. Another candidate could be to give it only two values, the minimum and the maximum of that variable. Many things would work, as long as we cover at least the range of that variable.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p>A version with a tidy data set and automatic legend would be preferable.<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
+</ol>
+</div>
