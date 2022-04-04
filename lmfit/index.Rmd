@@ -1,0 +1,321 @@
+---
+title: "Plotting the Linear Fit"
+author: "Antonio Fidalgo"
+date: 2022-03-28
+description: "Once we have the estimated the parameters of the linear model, we can draw a correspoonding linear fit in any relevant quadrant. This post shows how."
+tags: ["linear model", "ols", "plot", "fit"]
+categories: ["linear model", "plot"]
+link-citations: true
+ShowToc: true
+editPost:
+    URL: "https://github.com/AntonioFidalgo/post/blob/master/lmfit/index.Rmd"
+    Text: "Rmd Source Code \U0001f4ce"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = FALSE, echo = TRUE)
+```
+
+
+# Fitted Values: Not What We Want Here
+
+We estimated a linear relationship and obtained the estimates of the parameters,  $\hat{\beta}$'s. With them, we can now calculate the fitted values, i.e., what the model would predict for the given values of the $x_i$'s, the explanatory variables. We write these fitted values $\hat{y}_i$.
+
+\begin{equation}
+\hat{y}_i = \hat{\beta}_0 + \hat{\beta}_1x_{1i} + \hat{\beta}_2x_{2i} + \dots + \hat{\beta}_px_{pi} 
+(\#eq:fit)
+\end{equation}
+
+The problem of the visualization of the linear fit should be clear. In quadrant, we can use the vertical axis for the $\hat{y}_i$, and also for the $y_i$. But what variable goes in the horizontal axis, when we have so many explanatory variables to chose from?
+
+Let's use again the following linear model, after some changes in classes for a couple of variables.
+
+```{r, message=FALSE, warning=FALSE}
+library(dplyr)
+library(magrittr)
+
+mtcars <- mtcars %>%
+  mutate(cyl = factor(cyl),
+         am = factor(case_when(
+           am == 1 ~ "manual",
+           am == 0 ~ "automatic"
+           )))
+
+m1 <- lm(mpg ~ disp + hp + I(hp^2) + cyl + am + carb, data = mtcars)
+summary(m1)
+```
+
+The plot of the fitted values, with one of the explanatory variables in the horizontal axis (here `disp`), would show an erratic pattern.
+
+```{r fit01, fig.align='center', fig.cap="Typical picture of fitted values.", out.width="66%", cache=FALSE}
+library(ggplot2)
+set.seed(42)
+
+mtcars %>%
+  mutate(mpg.fit1 = m1$fitted.values) %>%
+  ggplot(aes(x= disp, y=mpg)) +
+  geom_point() +
+  geom_point(data=sample_n(mtcars, 1), 
+             pch=21, size=8, color="red") +
+  geom_line(aes(x= disp, y=mpg.fit1), color= "blue")   
+
+```
+
+The reason should be clear. The line of fitted values connects all the $\hat{y}_i$'s (notice the $i$) which depend on the values of the $x$'s **for that observation** $i$.
+
+For instance, here is one of the $n$ observations along with the actual `mpg` value and the fitted value for this observation. Notice that the observation is signaled in red in Figure \@ref(fig:fit01).
+
+```{r}
+set.seed(42)
+mtcars %>%
+  select(disp , hp,  cyl , am , carb, mpg) %>%
+  mutate(mpg.fit1 = m1$fitted.values) %>%
+  sample_n(1)
+```
+
+Given the values for the explanatory variables, along with the coefficients in `m1` above, we can easily verify that the fitted value is correct.   
+
+`r m1$coefficients[1]`  + (`r m1$coefficients[2]`) $\cdot$ 440 + (`r m1$coefficients[3]`) $\cdot$ 230  + (`r m1$coefficients[4]*1000`/1000) $\cdot$ 230^2^ + (`r m1$coefficients[5]`) $\cdot$ 0 + `r m1$coefficients[6]` $\cdot$ 1 + `r m1$coefficients[7]` $\cdot$ 0 +  (`r m1$coefficients[8]`) $\cdot$ 4 = 12.15224. 
+
+
+# Predictions Based on the Model Estimates: `predict()` & `newdata`
+
+The model's fitted values can be seen as a particular case of predictions based on the model estimates. As said above, they are the values predicted by the model given the values of the $x$'s in the sample.  
+
+But, of course, you can use the model to predict the dependent variable for any set of values of the dependent variable. For that purpose you can use the function `predict()`.   
+
+The usage of `predict()` that I show here only uses two arguments:  
+- a previously estimated model,
+- a data frame giving the values of the $x$'s for which you want a prediction of the model; the argument is called `newdata`.
+
+Here is an example where I actually provide the same observation of the sample as above. Notice that I create a new data frame.
+
+```{r}
+set.seed(42)
+new.df.A <- mtcars %>%
+  select(disp , hp,  cyl , am , carb) %>%
+  sample_n(1)
+new.df.A
+
+pred.A <- predict(m1, newdata = new.df.A)
+pred.A
+```
+As you can see, the prediction is exactly the same as above, both the "fitted-values" way or the "manually-calculated" way.
+
+In a second example, I make up the values of the $x$'s. Notice that I need to use:  
+
+- the appropriate names of the variables from the originally estimated model,
+- for the factor variables, I must give one of the original levels of the categorical variable, as a character string.
+
+
+
+```{r}
+new.df.B <- tibble(disp = 500,
+                   hp = 250,
+                   cyl = "6",
+                   am = "manual",
+                   carb = 4)
+new.df.B
+
+pred.B <- predict(m1, newdata = new.df.B)
+pred.B
+```
+
+As a final example, notice how I ask for $k=6$ predictions, for $k=6$ values of one of the explanatory variables while I don't change the value of the other variables. You can see it below when I call the new data frame.
+
+
+```{r}
+new.df.C <- tibble(disp = c(0,100, 200, 300, 400, 500),
+                   hp = 250,
+                   cyl = "6",
+                   am = "manual",
+                   carb = 4)
+new.df.C
+
+pred.C <- predict(m1, newdata = new.df.C)
+pred.C
+```
+
+
+
+
+
+
+
+
+# Getting a Straight Line
+
+Our goal is to draw a straight line in the plot above. In other words, we want a line with a constant slope equal to the estimated $\hat{\beta}$ coefficient.   
+
+To better understand how we obtain it, recall that the coefficient is interpreted as the marginal effect of the variable **other things equal**. The problem with the plot above was that, precisely, the other things, i.e., the other variables were not kept constant, but varied with each observation.   
+
+In other words, we must:  
+
+- ensure that "other things equal" condition is satisfied by making the values of the remaining variables constant,
+- let the variable on the horizontal axis run free.   
+
+
+The only remaining question is: constant at what value?^[If you want to be picky, you could bring another question. What values do we give for the variable on the horizontal axis? One candidate is to use the values in the sample. Another candidate could be to give it only two values, the minimum and the maximum of that variable. Many things would work, as long as we cover at least the range of that variable.] A common candidate is the mean, if the variable is numeric, or the mode, if the variable is categorical. But any other value is acceptable.  
+
+
+Thanks to the section above, you now know how to solve this: use the function `predict()` and an appropriate `newdata`. Here is an example.  
+
+Notice that, because I'm lazy, I first create a function that will return either the mean or the mode of the variable, depending on the type of vector.
+
+```{r}
+mean.or.mode <- function(x) {
+  if (is.factor(x)) {
+        tq = unclass(table(x))
+        j = which(tq == max(tq))[1]
+        sort(unique(x))[j]
+    }
+    else {
+        mean(x, na.rm = TRUE)
+    }
+}
+```
+
+Then I create the "other things equal except `disp`".
+
+```{r}
+new.df.D <- mtcars %>%
+  select(disp , hp,  cyl , am , carb, mpg) %>%
+  mutate(disp = disp, # keeps the value of disp in the sample
+         hp =  mean.or.mode(hp),
+         cyl = mean.or.mode(cyl),
+         am = mean.or.mode(am),
+         carb = mean.or.mode(carb)
+         )
+new.df.D
+```
+
+Finally, I used the new data for predictions (and add it them to the original data, but this is not the only/best way of doing it).
+
+```{r}
+mtcars <- mtcars %>%
+  mutate(pred.D = predict(m1, newdata = new.df.D))
+```
+
+We can now plot the straight line.
+
+```{r}
+mtcars %>%
+  ggplot(aes(x= disp, y=mpg)) +
+  geom_point() +
+  geom_line(aes(x= disp, y=pred.D), color= "red") 
+```
+
+
+
+# A Straight Line for Each Level
+
+Above, we fixed the values of the remaining variables at their mean or mode. You know that this is choice, though popular, is still a bit arbitrary. We could have taken any value, for instance,  
+
+- any percentile of the numeric variables,
+- any level of the categorical variables,
+- etc.
+
+For each case, we could obtain a straight line, i.e., a fit. 
+
+But then, if we can get a line for each level of the categorical variable, why not draw them all on the plot? That is what I do here. 
+
+First, I create a new evaluation data for **each** of the levels. The variable `am` has the levels:
+
+```{r}
+library(forcats)
+fct_unique(mtcars$am)
+```
+So, I create two evaluation data sets.
+
+```{r}
+new.df.E.man <- mtcars %>%
+  select(disp , hp,  cyl , am , carb, mpg) %>%
+  mutate(disp = disp, # keeps the value of disp in the sample
+         hp =  mean.or.mode(hp),
+         cyl = mean.or.mode(cyl),
+         am = "manual",
+         carb = mean.or.mode(carb)
+         )
+
+new.df.E.aut <- mtcars %>%
+  select(disp , hp,  cyl , am , carb, mpg) %>%
+  mutate(disp = disp, # keeps the value of disp in the sample
+         hp =  mean.or.mode(hp),
+         cyl = mean.or.mode(cyl),
+         am = "automatic",
+         carb = mean.or.mode(carb)
+         )
+```
+
+
+Based on these data sets, I calculate two fits.
+
+```{r}
+mtcars <- mtcars %>%
+  mutate(pred.E.man = predict(m1, newdata = new.df.E.man),
+         pred.E.aut = predict(m1, newdata = new.df.E.aut))
+```
+
+As for the plotting, I will chose here a straightforward way version:^[A version with a tidy data set and automatic legend would be preferable.] each level's fit goes in one `geom_line`.
+
+
+```{r}
+mtcars %>%
+  ggplot(aes(x= disp, y=mpg)) +
+  geom_point() +
+  geom_line(aes(x= disp, y=pred.E.man), color= "blue") +
+  annotate("text", x= 450, y= 20, color = "blue", label = "manual") +
+  geom_line(aes(x= disp, y=pred.E.aut), color= "red") +
+  annotate("text", x= 450, y= 12, color = "red", label = "automatic")
+
+```
+
+
+The two lines are "obviously" parallel. We can even say more. The vertical distance between the two lines is the coefficient for `ammanual` in model `m1`, i.e., `r m1$coefficients[7]`.
+
+
+# Fit with Polynomial
+
+This is a slightly more advanced topic. It deals with the case where the variable that we want to use in the horizontal axis enters the model with a power, e.g., `^2`. This is the case with the variable `hp` in the model `m1` above and I will use it in the illustration below.  
+
+Coda: The fit cannot be a straight line because the prediction uses `hp` and `hp^2`!
+
+The procedure is the same as above, though now the variable that does **not** stay constant is `hp`. First, create a new evaluation data set.
+
+
+```{r}
+new.df.F <- mtcars %>%
+  select(disp , hp,  cyl , am , carb, mpg) %>%
+  mutate(hp = hp, # keeps the value of hp in the sample
+         disp =  mean.or.mode(disp),
+         cyl = mean.or.mode(cyl),
+         am = mean.or.mode(am),
+         carb = mean.or.mode(carb)
+         )
+new.df.F
+```
+
+Then, make the prediction (adding it to the original data set, here).
+
+```{r}
+mtcars <- mtcars %>%
+  mutate(pred.F = predict(m1, newdata = new.df.F))
+```
+
+We can now plot the **non**-straight line.
+
+```{r}
+mtcars %>%
+  ggplot(aes(x= hp, y=mpg)) +
+  geom_point() +
+  geom_line(aes(x=hp, y=pred.F), color= "red") 
+```
+
+
+
+
+
+
+
+
+
