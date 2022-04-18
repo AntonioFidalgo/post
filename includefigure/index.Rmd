@@ -7,7 +7,7 @@ tags: ["figures", "R chunk", "path", "chunk options"]
 series: ["figures"]
 link-citations: true
 editPost:
-    URL: "https://github.com/AntonioFidalgo/post/blob/master/includefigure/index.Rmd"
+    URL: "https://github.com/AntonioFidalgo/post/blob/main/includefigure/index.Rmd"
     Text: "Rmd Source Code"
 ---
 
