@@ -1,0 +1,88 @@
+---
+title: "Cross-Reference a Section"
+author: "Andreia Pinto"
+date: 2022-03-07
+description: "This post shows how to cross-reference sections in a Rmd file."
+tags: ["bookdown", "cross-reference"]
+categories: ["Rmd basics"]
+link-citations: true
+ShowToc: true
+editPost:
+    URL: "https://github.com/AntonioFidalgo/post/blob/master/s-crossreferencesection/index.Rmd"
+    Text: "Rmd Source Code \U0001f4ce"
+---
+
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
+
+
+<p>Cross-references are references to different elements somewhere in the content. In the case of this post, we will approach the referencing to a section in the document.</p>
+<div id="necessary-package" class="section level1 tabset">
+<h1>Necessary Package</h1>
+<p>Because cross-referencing is not readily available with <code>knitr</code>, there is a need to install the package <code>bookdown</code>.<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a></p>
+<p>This package is particularly designed for writing books, but can be used for a R Markdown file. To do so, it requires a change in YAML.</p>
+<div id="from-knitr" class="section level3">
+<h3>From <code>knitr</code></h3>
+<pre class="r"><code>output:
+  XXX_document:</code></pre>
+</div>
+<div id="to-bookdown" class="section level3">
+<h3>To <code>bookdown</code></h3>
+<pre class="r"><code>output:
+  bookdown:: XXX_document2:
+    number_sections: TRUE</code></pre>
+<p>The option <code>number_sections: TRUE</code> will make sure that our sections are numbered. This is very important, as cross-referencing only works if our sections are numbered (C-R returns the number).</p>
+</div>
+</div>
+<div id="label-2" class="section level1">
+<h1>Labeling</h1>
+<p>The section to be referenced needs to take a label, which will allow us to call the section. There are a few <strong>rules of labeling</strong> to be considered:</p>
+<ul>
+<li>Labels must be unique, meaning no two sections can have an equal label;<br />
+</li>
+<li>Labels must start with a letter (<code>a</code> to <code>z</code>);<br />
+</li>
+<li>Labels can only contain:
+<ul>
+<li>alphanumeric characters (letters and numbers), and<br />
+</li>
+<li>the special characters <code>:</code>, <code>-</code>, <code>/</code>;<br />
+</li>
+</ul></li>
+<li>Empty spaces (<code>blank</code>) are not allowed;<br />
+</li>
+<li>It is advisable that labels are easy to remember.</li>
+</ul>
+<p>Labels are assigned by adding the code <code>{#label}</code>, where <code>label</code> respects the previous rules.</p>
+<p>For instance, the labels of sections can look like this:</p>
+<p><code># Introduction {#intro}</code><br />
+<code>## Step One {#step1}</code><br />
+<code>### Complexity of Step One {#complex-step1}</code></p>
+</div>
+<div id="cross-referencing" class="section level1">
+<h1>Cross-Referencing</h1>
+<p>The code reference can be achieved with the code <code>\@ref(label)</code>, where <code>label</code> is the label chosen for the section being referenced.<br />
+If R fails to find the label used in a cross-reference, computation does not stop. Instead, the output will reflect the mistake by returning <code>??</code> where the section number was supposed to appear.</p>
+</div>
+<div id="example" class="section level1">
+<h1>Example</h1>
+<p>As example, let’s consider this document’s section called “Labeling”.</p>
+<div id="section-header" class="section level3">
+<h3>Section Header</h3>
+<p><code># Labeling {#label-2}</code></p>
+</div>
+<div id="c-r-code" class="section level3">
+<h3>C-R code</h3>
+<p><code>In the section \@ref(label-2) of this document, I provide a list of rules for correct labeling.</code></p>
+</div>
+<div id="output" class="section level3">
+<h3>Output</h3>
+<p>In the section <a href="#label-2"><strong>??</strong></a><a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a> of this document, I provide a list of rules for correct labeling.</p>
+</div>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>Check out here <a href="https://antoniofidalgo.page/discoveR/setup.html#Install_Packages">How to Install Packages</a>.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p>Of course, here the cross-referencing will not work because the sections are not numbered.<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
+</ol>
+</div>

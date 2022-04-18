@@ -2,7 +2,7 @@
 title: "Plotting the Linear Fit"
 author: "Antonio Fidalgo"
 date: 2022-03-28
-description: "Once we have the estimated the parameters of the linear model, we can draw a correspoonding linear fit in any relevant quadrant. This post shows how."
+description: "After estimating the parameters of the linear model, we can draw a corresponding linear fit. This post shows how."
 tags: ["linear model", "ols", "plot", "fit"]
 categories: ["linear model", "plot"]
 link-citations: true
@@ -12,6 +12,7 @@ editPost:
     Text: "Rmd Source Code \U0001f4ce"
 ---
 
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
 
 
 <div id="fitted-values-not-what-we-want-here" class="section level1">
@@ -59,6 +60,8 @@ summary(m1)</code></pre>
 ## Residual standard error: 2.57 on 24 degrees of freedom
 ## Multiple R-squared:  0.8592, Adjusted R-squared:  0.8181 
 ## F-statistic: 20.92 on 7 and 24 DF,  p-value: 9.021e-09</code></pre>
+<div id="plot-of-the-fitted-values" class="section level3">
+<h3>Plot of the Fitted Values</h3>
 <p>The plot of the fitted values, with one of the explanatory variables in the horizontal axis (here <code>disp</code>), would show an erratic pattern.</p>
 <pre class="r"><code>library(ggplot2)
 set.seed(42)
@@ -77,6 +80,9 @@ Figure 1: Typical picture of fitted values.
 </p>
 </div>
 <p>The reason should be clear. The line of fitted values connects all the <span class="math inline">\(\hat{y}_i\)</span>’s (notice the <span class="math inline">\(i\)</span>) which depend on the values of the <span class="math inline">\(x\)</span>’s <strong>for that observation</strong> <span class="math inline">\(i\)</span>.</p>
+</div>
+<div id="one-of-the-predicted-values-manually" class="section level3">
+<h3>One of the Predicted Values (Manually)</h3>
 <p>For instance, here is one of the <span class="math inline">\(n\)</span> observations along with the actual <code>mpg</code> value and the fitted value for this observation. Notice that the observation is signaled in red in Figure <a href="#fig:fit01">1</a>.</p>
 <pre class="r"><code>set.seed(42)
 mtcars %&gt;%
@@ -86,15 +92,26 @@ mtcars %&gt;%
 <pre><code>##                   disp  hp cyl        am carb  mpg mpg.fit1
 ## Chrysler Imperial  440 230   8 automatic    4 14.7 12.15224</code></pre>
 <p>Given the values for the explanatory variables, along with the coefficients in <code>m1</code> above, we can easily verify that the fitted value is correct.</p>
-<p>33.5906737 + (-0.0160481) <span class="math inline">\(\cdot\)</span> 440 + (-0.0934458) <span class="math inline">\(\cdot\)</span> 230 + (0.1841838/1000) <span class="math inline">\(\cdot\)</span> 230<sup>2</sup> + (-1.0561395) <span class="math inline">\(\cdot\)</span> 0 + 0.4670087 <span class="math inline">\(\cdot\)</span> 1 + 3.2270059 <span class="math inline">\(\cdot\)</span> 0 + (-0.7737664) <span class="math inline">\(\cdot\)</span> 4 = 12.15224.</p>
+<p>33.5906737 <span class="math inline">\(\cdot\)</span> 1 +<br />
+(-0.0160481) <span class="math inline">\(\cdot\)</span> 440 +<br />
+(-0.0934458) <span class="math inline">\(\cdot\)</span> 230 +<br />
+(0.1841838/1000) <span class="math inline">\(\cdot\)</span> 230<sup>2</sup> +<br />
+(-1.0561395) <span class="math inline">\(\cdot\)</span> 0 +<br />
+0.4670087 <span class="math inline">\(\cdot\)</span> 1 +<br />
+3.2270059 <span class="math inline">\(\cdot\)</span> 0 +<br />
+(-0.7737664) <span class="math inline">\(\cdot\)</span> 4<br />
+= 12.15224.</p>
+</div>
 </div>
 <div id="predictions-based-on-the-model-estimates-predict-newdata" class="section level1">
 <h1>Predictions Based on the Model Estimates: <code>predict()</code> &amp; <code>newdata</code></h1>
 <p>The model’s fitted values can be seen as a particular case of predictions based on the model estimates. As said above, they are the values predicted by the model given the values of the <span class="math inline">\(x\)</span>’s in the sample.</p>
 <p>But, of course, you can use the model to predict the dependent variable for any set of values of the dependent variable. For that purpose you can use the function <code>predict()</code>.</p>
-<p>The usage of <code>predict()</code> that I show here only uses two arguments:<br />
-- a previously estimated model,
-- a data frame giving the values of the <span class="math inline">\(x\)</span>’s for which you want a prediction of the model; the argument is called <code>newdata</code>.</p>
+<p>The usage of <code>predict()</code> that I show here only uses two arguments:</p>
+<ul>
+<li>a previously estimated model,</li>
+<li>a data frame giving the values of the <span class="math inline">\(x\)</span>’s for which you want a prediction of the model; the argument is called <code>newdata</code>.</li>
+</ul>
 <p>Here is an example where I actually provide the same observation of the sample as above. Notice that I create a new data frame.</p>
 <pre class="r"><code>set.seed(42)
 new.df.A &lt;- mtcars %&gt;%
@@ -158,7 +175,9 @@ pred.C</code></pre>
 <li>let the variable on the horizontal axis run free.</li>
 </ul>
 <p>The only remaining question is: constant at what value?<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> A common candidate is the mean, if the variable is numeric, or the mode, if the variable is categorical. But any other value is acceptable.</p>
-<p>Thanks to the section above, you now know how to solve this: use the function <code>predict()</code> and an appropriate <code>newdata</code>. Here is an example.</p>
+<p>Thanks to the section above, you now know how to solve this: use the function <code>predict()</code> and an appropriate <code>newdata</code>. Below, there is an example.</p>
+<div id="mean-or-mode-function" class="section level3">
+<h3>Mean or Mode Function</h3>
 <p>Notice that, because I’m lazy, I first create a function that will return either the mean or the mode of the variable, depending on the type of vector.</p>
 <pre class="r"><code>mean.or.mode &lt;- function(x) {
   if (is.factor(x)) {
@@ -170,6 +189,9 @@ pred.C</code></pre>
         mean(x, na.rm = TRUE)
     }
 }</code></pre>
+</div>
+<div id="evaluation-data-set" class="section level3">
+<h3>Evaluation Data Set</h3>
 <p>Then I create the “other things equal except <code>disp</code>”.</p>
 <pre class="r"><code>new.df.D &lt;- mtcars %&gt;%
   select(disp , hp,  cyl , am , carb, mpg) %&gt;%
@@ -179,49 +201,39 @@ pred.C</code></pre>
          am = mean.or.mode(am),
          carb = mean.or.mode(carb)
          )
-new.df.D</code></pre>
-<pre><code>##                      disp       hp cyl        am   carb  mpg
-## Mazda RX4           160.0 146.6875   8 automatic 2.8125 21.0
-## Mazda RX4 Wag       160.0 146.6875   8 automatic 2.8125 21.0
-## Datsun 710          108.0 146.6875   8 automatic 2.8125 22.8
-## Hornet 4 Drive      258.0 146.6875   8 automatic 2.8125 21.4
-## Hornet Sportabout   360.0 146.6875   8 automatic 2.8125 18.7
-## Valiant             225.0 146.6875   8 automatic 2.8125 18.1
-## Duster 360          360.0 146.6875   8 automatic 2.8125 14.3
-## Merc 240D           146.7 146.6875   8 automatic 2.8125 24.4
-## Merc 230            140.8 146.6875   8 automatic 2.8125 22.8
-## Merc 280            167.6 146.6875   8 automatic 2.8125 19.2
-## Merc 280C           167.6 146.6875   8 automatic 2.8125 17.8
-## Merc 450SE          275.8 146.6875   8 automatic 2.8125 16.4
-## Merc 450SL          275.8 146.6875   8 automatic 2.8125 17.3
-## Merc 450SLC         275.8 146.6875   8 automatic 2.8125 15.2
-## Cadillac Fleetwood  472.0 146.6875   8 automatic 2.8125 10.4
-## Lincoln Continental 460.0 146.6875   8 automatic 2.8125 10.4
-## Chrysler Imperial   440.0 146.6875   8 automatic 2.8125 14.7
-## Fiat 128             78.7 146.6875   8 automatic 2.8125 32.4
-## Honda Civic          75.7 146.6875   8 automatic 2.8125 30.4
-## Toyota Corolla       71.1 146.6875   8 automatic 2.8125 33.9
-## Toyota Corona       120.1 146.6875   8 automatic 2.8125 21.5
-## Dodge Challenger    318.0 146.6875   8 automatic 2.8125 15.5
-## AMC Javelin         304.0 146.6875   8 automatic 2.8125 15.2
-## Camaro Z28          350.0 146.6875   8 automatic 2.8125 13.3
-## Pontiac Firebird    400.0 146.6875   8 automatic 2.8125 19.2
-## Fiat X1-9            79.0 146.6875   8 automatic 2.8125 27.3
-## Porsche 914-2       120.3 146.6875   8 automatic 2.8125 26.0
-## Lotus Europa         95.1 146.6875   8 automatic 2.8125 30.4
-## Ford Pantera L      351.0 146.6875   8 automatic 2.8125 15.8
-## Ferrari Dino        145.0 146.6875   8 automatic 2.8125 19.7
-## Maserati Bora       301.0 146.6875   8 automatic 2.8125 15.0
-## Volvo 142E          121.0 146.6875   8 automatic 2.8125 21.4</code></pre>
+
+new.df.D %&gt;%
+  as_tibble()</code></pre>
+<pre><code>## # A tibble: 32 × 6
+##     disp    hp cyl   am         carb   mpg
+##    &lt;dbl&gt; &lt;dbl&gt; &lt;fct&gt; &lt;fct&gt;     &lt;dbl&gt; &lt;dbl&gt;
+##  1  160   147. 8     automatic  2.81  21  
+##  2  160   147. 8     automatic  2.81  21  
+##  3  108   147. 8     automatic  2.81  22.8
+##  4  258   147. 8     automatic  2.81  21.4
+##  5  360   147. 8     automatic  2.81  18.7
+##  6  225   147. 8     automatic  2.81  18.1
+##  7  360   147. 8     automatic  2.81  14.3
+##  8  147.  147. 8     automatic  2.81  24.4
+##  9  141.  147. 8     automatic  2.81  22.8
+## 10  168.  147. 8     automatic  2.81  19.2
+## # … with 22 more rows</code></pre>
+</div>
+<div id="predictions" class="section level3">
+<h3>Predictions</h3>
 <p>Finally, I used the new data for predictions (and add it them to the original data, but this is not the only/best way of doing it).</p>
 <pre class="r"><code>mtcars &lt;- mtcars %&gt;%
   mutate(pred.D = predict(m1, newdata = new.df.D))</code></pre>
+</div>
+<div id="plot" class="section level3">
+<h3>Plot</h3>
 <p>We can now plot the straight line.</p>
 <pre class="r"><code>mtcars %&gt;%
   ggplot(aes(x= disp, y=mpg)) +
   geom_point() +
   geom_line(aes(x= disp, y=pred.D), color= &quot;red&quot;) </code></pre>
 <p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+</div>
 </div>
 <div id="a-straight-line-for-each-level" class="section level1">
 <h1>A Straight Line for Each Level</h1>
@@ -284,40 +296,23 @@ new.df.E.aut &lt;- mtcars %&gt;%
          am = mean.or.mode(am),
          carb = mean.or.mode(carb)
          )
-new.df.F</code></pre>
-<pre><code>##                         disp  hp cyl        am   carb  mpg
-## Mazda RX4           230.7219 110   8 automatic 2.8125 21.0
-## Mazda RX4 Wag       230.7219 110   8 automatic 2.8125 21.0
-## Datsun 710          230.7219  93   8 automatic 2.8125 22.8
-## Hornet 4 Drive      230.7219 110   8 automatic 2.8125 21.4
-## Hornet Sportabout   230.7219 175   8 automatic 2.8125 18.7
-## Valiant             230.7219 105   8 automatic 2.8125 18.1
-## Duster 360          230.7219 245   8 automatic 2.8125 14.3
-## Merc 240D           230.7219  62   8 automatic 2.8125 24.4
-## Merc 230            230.7219  95   8 automatic 2.8125 22.8
-## Merc 280            230.7219 123   8 automatic 2.8125 19.2
-## Merc 280C           230.7219 123   8 automatic 2.8125 17.8
-## Merc 450SE          230.7219 180   8 automatic 2.8125 16.4
-## Merc 450SL          230.7219 180   8 automatic 2.8125 17.3
-## Merc 450SLC         230.7219 180   8 automatic 2.8125 15.2
-## Cadillac Fleetwood  230.7219 205   8 automatic 2.8125 10.4
-## Lincoln Continental 230.7219 215   8 automatic 2.8125 10.4
-## Chrysler Imperial   230.7219 230   8 automatic 2.8125 14.7
-## Fiat 128            230.7219  66   8 automatic 2.8125 32.4
-## Honda Civic         230.7219  52   8 automatic 2.8125 30.4
-## Toyota Corolla      230.7219  65   8 automatic 2.8125 33.9
-## Toyota Corona       230.7219  97   8 automatic 2.8125 21.5
-## Dodge Challenger    230.7219 150   8 automatic 2.8125 15.5
-## AMC Javelin         230.7219 150   8 automatic 2.8125 15.2
-## Camaro Z28          230.7219 245   8 automatic 2.8125 13.3
-## Pontiac Firebird    230.7219 175   8 automatic 2.8125 19.2
-## Fiat X1-9           230.7219  66   8 automatic 2.8125 27.3
-## Porsche 914-2       230.7219  91   8 automatic 2.8125 26.0
-## Lotus Europa        230.7219 113   8 automatic 2.8125 30.4
-## Ford Pantera L      230.7219 264   8 automatic 2.8125 15.8
-## Ferrari Dino        230.7219 175   8 automatic 2.8125 19.7
-## Maserati Bora       230.7219 335   8 automatic 2.8125 15.0
-## Volvo 142E          230.7219 109   8 automatic 2.8125 21.4</code></pre>
+
+new.df.F %&gt;%
+  as_tibble()</code></pre>
+<pre><code>## # A tibble: 32 × 6
+##     disp    hp cyl   am         carb   mpg
+##    &lt;dbl&gt; &lt;dbl&gt; &lt;fct&gt; &lt;fct&gt;     &lt;dbl&gt; &lt;dbl&gt;
+##  1  231.   110 8     automatic  2.81  21  
+##  2  231.   110 8     automatic  2.81  21  
+##  3  231.    93 8     automatic  2.81  22.8
+##  4  231.   110 8     automatic  2.81  21.4
+##  5  231.   175 8     automatic  2.81  18.7
+##  6  231.   105 8     automatic  2.81  18.1
+##  7  231.   245 8     automatic  2.81  14.3
+##  8  231.    62 8     automatic  2.81  24.4
+##  9  231.    95 8     automatic  2.81  22.8
+## 10  231.   123 8     automatic  2.81  19.2
+## # … with 22 more rows</code></pre>
 <p>Then, make the prediction (adding it to the original data set, here).</p>
 <pre class="r"><code>mtcars &lt;- mtcars %&gt;%
   mutate(pred.F = predict(m1, newdata = new.df.F))</code></pre>

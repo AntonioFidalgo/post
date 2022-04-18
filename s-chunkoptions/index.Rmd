@@ -1,0 +1,329 @@
+---
+title: "Mastering R Chunk Options"
+author: "Andreia Pinto"
+date: 2022-03-07
+description: "This post illustrates the use of selected relevant R chunk options."
+tags: ["basics", "chunk"]
+categories: ["Rmd basics"]
+link-citations: true
+ShowToc: true
+editPost:
+    URL: "https://github.com/AntonioFidalgo/post/blob/master/s-chunkoptions/index.Rmd"
+    Text: "Rmd Source Code \U0001f4ce"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, comment="")
+
+library(knitr)
+library(tibble)
+library(ggplot2)
+```
+
+Thanks to `knitr` package, we have access to dozens of chunk options that allow us to customize nearly all components of code chunks. These options will then control the behavior of the R chunk, namely regarding to styling its output.
+
+# Setting R Chunk Options
+
+Chunk options are written in the form `option=value`. We can apply them either globally or to individual code chunks.
+
+### Globally
+
+(All R chunks in a document): Call `knitr::opts_chunk$set()` in a code chunk, usually the first one. If you want two or more global options, separate them with a comma. E.g.:  
+
+
+#### One Global option
+
+````markdown
+```{r setup}`r ''`
+knitr::opts_chunk$set(option=value)
+```
+````
+
+#### Two Global options
+````markdown
+```{r setup}`r ''`
+knitr::opts_chunk$set(option1=value, option2=value)
+```
+````
+
+### Individual Code Chunks
+
+Add chunk options within the braces `{}` of the R chunk. As previously, if you want two or more options, separate them with a comma. By default there is a special option that labels the R chunk. This option does not need the `option` tag, meaning you can directly write the label you want. Each label should be unique, or else `knitr` will throw an error. E.g.:
+
+
+#### Only Label
+
+````markdown
+```{r chunk-label-1}`r ''`
+```
+````
+
+#### Label + One Option
+
+````markdown
+```{r chunk-label-2, option=value}`r ''`
+```
+````
+
+#### Label + Two Options
+
+````markdown
+```{r chunk-label-3, option1=value, option2=value}`r ''`
+```
+````
+
+# Most Common Chunk Options^[The complete list of functions can be found at the `knitr`'s creator, Yihui Xie, [webpage](https://yihui.name/knitr/options)]
+
+### `eval = TRUE/FALSE` 
+
+Determines whether to evaluate (i.e. run) the current R chunk. It is `TRUE` by default. 
+
+##### TRUE
+
+```{r, eval=TRUE}
+2 + 2
+```
+
+##### FALSE
+
+*Since the code is not run, there is no result to be shown. Any object defined in the chunk will NOT affect the document.*
+
+```{r, eval=FALSE}
+2 + 2
+```
+  
+
+### `include = TRUE/FALSE` 
+
+Determines whether to include the code in the output document. It is `TRUE` by default.
+
+##### TRUE
+
+```{r, include=TRUE}
+2 + 2
+```
+
+##### FALSE
+
+*When we ask R to not include the code, all elements are hidden. This includes R chunk, output, messages and warnings.*^[`include` works as a sum of many chunk options, such as `echo`, `results`, `message`, `warning` and `fig.show`.]  
+*Nonetheless, the code is still run, meaning that it still affects the document, and can be called or used forward in the document.*^[A simple example of the utility of this option is when we want to call a package with `library()`, but do not want to show this action, since it is not useful for the information in the document.]
+
+```{r, include=FALSE}
+2 + 2
+```
+  
+ 
+### `collapse = TRUE/FALSE` 
+
+Determines whether to collapse all the source and output blocks created by the chunk into a single block. It is `FALSE` by default.
+
+##### TRUE
+
+```{r, collapse=TRUE}
+2 + 2
+```
+
+##### FALSE
+
+```{r, collapse=FALSE}
+2 + 2
+```
+  
+
+### `echo = TRUE/FALSE` 
+
+Determines whether to display the code in the code chunk above its results in the final document.
+
+##### TRUE
+
+```{r, echo=TRUE}
+2 + 2
+```
+
+##### FALSE
+
+```{r, echo=FALSE}
+2 + 2
+```
+  
+ 
+
+### `results = 'markup'/'hide'/'hold'/'asis'` 
+
+Determines how to deal with the results. It is `'markup'` by default.
+
+##### 'markup'
+
+*Marks up output with the appropriate environment depending on output format.*
+
+```{r, results='markup'}
+2 + 2
+3 * 4
+```
+
+##### 'hide'
+
+*Hides all results of the chunk. However, the code is still run, meaning that any object defined by it can be used forward in the document.*
+
+```{r, results='hide'}
+2 + 2
+3 * 4
+```
+
+##### 'hold'
+
+*Holds all output pieces to display them only after the end of the chunk. It is particularly helpful when grouping multiple figures.*
+
+```{r, results='hold'}
+2 + 2
+3 * 4
+```
+
+##### 'asis'
+
+*`knitr` will pass through results without reformatting them, rendering them in an uglier format.*
+
+```{r, results='asis'}
+2 + 2
+3 * 4
+```
+  
+ 
+### `error = TRUE/FALSE`
+  
+Determines the behavior in case of error. It is `FALSE` by default.  
+
+##### TRUE
+
+*Displays the error in output document.*
+
+```{r, error=TRUE}
+3(2 + 2)
+```
+
+##### FALSE
+
+*Makes the computation stop.*
+  
+ 
+### `message = TRUE/FALSE` & `warning = TRUE/FALSE`
+
+Determine whether to display messages and warnings, respectively, in output document. They are both `TRUE` by default.  
+
+ 
+### `cache = TRUE/FALSE`
+
+Determines whether to cache the results for future compilations. `knitr` will reuse the results until the code chunk is altered. It is `FALSE` by default.
+
+
+### `fig.align = 'left'/'center'/'right'`
+
+Determines how graphics are aligned in the final document.
+
+<!--
+##### 'left'
+
+```{r, fig.align='left', out.width="35%"}
+knitr::include_graphics("Logo_CLSBE.png")
+```
+
+-->
+
+##### 'center'
+
+```{r, fig.align='center', out.width="35%"}
+knitr::include_graphics("Logo_CLSBE.png")
+```
+
+<!-- 
+
+##### 'right'
+
+```{r, fig.align='right', out.width="35%"}
+knitr::include_graphics("Logo_CLSBE.png")
+```
+
+-->
+
+### `fig.show = 'asis'/'hide'/'hold'/'animate'` 
+
+Determines how to deal with the plots generated by the chunk. It is `'asis'` by default.
+
+##### 'asis'
+
+*Shows plots exactly in places where they were generated.*
+
+```{r, fig.show='asis', out.width="25%"}
+fig1 <- ggplot(mtcars, aes(x=wt, y=mpg, col=factor(cyl))) +
+  geom_point()
+
+fig1
+
+fig2 <- ggplot(mtcars, aes(y=mpg, col=factor(cyl))) +
+  geom_bar()
+
+fig2
+```
+
+##### 'hide'
+
+*Hides all plots generated in the chunk.*
+
+```{r, fig.show='hide', out.width="25%"}
+fig1 <- ggplot(mtcars, aes(x=wt, y=mpg, col=factor(cyl))) +
+  geom_point()
+
+fig1
+
+fig2 <- ggplot(mtcars, aes(y=mpg, col=factor(cyl))) +
+  geom_bar()
+
+fig2
+```
+
+##### 'hold'
+
+*Holds all plots to display them only after the end of the chunk. It is particularly helpful when grouping multiple figures.*
+
+```{r, fig.show='hold', out.width="25%"}
+fig1 <- ggplot(mtcars, aes(x=wt, y=mpg, col=factor(cyl))) +
+  geom_point()
+
+fig1
+
+fig2 <- ggplot(mtcars, aes(y=mpg, col=factor(cyl))) +
+  geom_bar()
+
+fig2
+```
+
+##### 'animate'
+
+*Combines all of the plots created by the chunk into an animation.*^[This requires a more profound knowledge of `ggplot2`.]
+
+ 
+### `fig.cap = string`  
+
+Determines the character string to be used as a figure caption.
+
+
+### `fig.width = value` & `fig.height = value`  
+
+Determine the width and height to use in R plots created by the chunk. They are both `7` by default.^[When you insert a number, x, it will return the output in x inches. There is a need to insert `cm`, if you want to use that measure instead.]  
+
+Optionally, you can use the option `fig.dim = c(value1, value2)`, which means `fig.width = value1` and `fig.height = value2`.  
+
+ 
+### `out.width = value` & `out.height = value`  
+
+Determine the width and height to scale plots in the final output. They are both `NULL` by default. The values can be in any unit recognized by output, for example, `"55%"` or `"50px"`.
+
+# Summary List
+
+```{r list, include=TRUE, echo=FALSE}
+opt.list <- tibble(Option=c("eval", "include", "collapse", "echo", "results", "error", "message", "warning", "fig.align", "fig.cap", "fig.height, fig.width", "fig.show", "out.height, out.width"),
+                       Description=c(1:13),
+                       Default=c("TRUE", "TRUE", "FALSE", "TRUE", "'markup'", "TRUE", "TRUE", "TRUE", "'default'", "NULL", 7, "'asis'", "NULL"))
+
+opt.list
+```
