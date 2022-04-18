@@ -8,7 +8,7 @@ categories: ["linear model", "plot"]
 link-citations: true
 ShowToc: true
 editPost:
-    URL: "https://github.com/AntonioFidalgo/post/blob/master/lmfit/index.Rmd"
+    URL: "https://github.com/AntonioFidalgo/post/blob/main/lmfit/index.Rmd"
     Text: "Rmd Source Code \U0001f4ce"
 ---
 
