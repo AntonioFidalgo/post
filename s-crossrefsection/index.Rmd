@@ -1,0 +1,87 @@
+---
+title: "Cross-Reference a Section"
+author: "Andreia Pinto"
+date: 2022-03-07
+description: "This post shows how to cross-reference sections in a Rmd file."
+tags: ["bookdown", "cross-reference"]
+categories: ["Rmd basics"]
+link-citations: true
+ShowToc: true
+editPost:
+    URL: "https://github.com/AntonioFidalgo/post/blob/master/s-crossreferencesection/index.Rmd"
+    Text: "Rmd Source Code \U0001f4ce"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(knitr)
+library(bookdown)
+```
+
+Cross-references are references to different elements somewhere in the content. In the case of this post, we will approach the referencing to a section in the document.  
+
+# Necessary Package {.tabset}
+
+Because cross-referencing is not readily available with `knitr`, there is a need to install the package `bookdown`.^[Check out here [How to Install Packages](https://antoniofidalgo.page/discoveR/setup.html#Install_Packages).]  
+
+This package is particularly designed for writing books, but can be used for a R Markdown file. To do so, it requires a change in YAML.  
+
+### From `knitr`
+
+```{r, eval=FALSE}
+output:
+  XXX_document:
+```
+
+### To `bookdown` 
+
+```{r, eval=FALSE}
+output:
+  bookdown:: XXX_document2:
+    number_sections: TRUE
+```
+
+The option `number_sections: TRUE` will make sure that our sections are numbered. This is very important, as cross-referencing only works if our sections are numbered (C-R returns the number).
+
+# Labeling {#label-2}
+
+The section to be referenced needs to take a label, which will allow us to call the section. There are a few **rules of labeling** to be considered:  
+
+* Labels must be unique, meaning no two sections can have an equal label;  
+* Labels must start with a letter (`a` to `z`);  
+* Labels can only contain:  
+  * alphanumeric characters (letters and numbers), and  
+  * the special characters `:`, `-`, `/`;  
+* Empty spaces (`blank`) are not allowed;  
+* It is advisable that labels are easy to remember.  
+
+Labels are assigned by adding the code `{#label}`, where `label` respects the previous rules.   
+
+For instance, the labels of sections can look like this:   
+
+`# Introduction {#intro}`  
+`## Step One {#step1}`  
+`### Complexity of Step One {#complex-step1}`  
+
+# Cross-Referencing
+
+The code reference can be achieved with the code `\@ref(label)`, where `label` is the label chosen for the section being referenced.  
+If R fails to find the label used in a cross-reference, computation does not stop. Instead, the output will reflect the mistake by returning `??` where the section number was supposed to appear.  
+
+# Example 
+
+As example, let's consider this document's section called "Labeling".  
+
+### Section Header
+
+`# Labeling {#label-2}`
+
+### C-R code
+
+`In the section \@ref(label-2) of this document, I provide a list of rules for correct labeling.`
+
+### Output
+
+In the section \@ref(label-2)^[Of course, here the cross-referencing will not work because the sections are not numbered.] of this document, I provide a list of rules for correct labeling.
+

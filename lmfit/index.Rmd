@@ -2,7 +2,7 @@
 title: "Plotting the Linear Fit"
 author: "Antonio Fidalgo"
 date: 2022-03-28
-description: "Once we have the estimated the parameters of the linear model, we can draw a correspoonding linear fit in any relevant quadrant. This post shows how."
+description: "After estimating the parameters of the linear model, we can draw a corresponding linear fit. This post shows how."
 tags: ["linear model", "ols", "plot", "fit"]
 categories: ["linear model", "plot"]
 link-citations: true
@@ -45,6 +45,8 @@ m1 <- lm(mpg ~ disp + hp + I(hp^2) + cyl + am + carb, data = mtcars)
 summary(m1)
 ```
 
+### Plot of the Fitted Values
+
 The plot of the fitted values, with one of the explanatory variables in the horizontal axis (here `disp`), would show an erratic pattern.
 
 ```{r fit01, fig.align='center', fig.cap="Typical picture of fitted values.", out.width="66%", cache=FALSE}
@@ -63,6 +65,9 @@ mtcars %>%
 
 The reason should be clear. The line of fitted values connects all the $\hat{y}_i$'s (notice the $i$) which depend on the values of the $x$'s **for that observation** $i$.
 
+
+### One of the Predicted Values (Manually)
+
 For instance, here is one of the $n$ observations along with the actual `mpg` value and the fitted value for this observation. Notice that the observation is signaled in red in Figure \@ref(fig:fit01).
 
 ```{r}
@@ -75,7 +80,15 @@ mtcars %>%
 
 Given the values for the explanatory variables, along with the coefficients in `m1` above, we can easily verify that the fitted value is correct.   
 
-`r m1$coefficients[1]`  + (`r m1$coefficients[2]`) $\cdot$ 440 + (`r m1$coefficients[3]`) $\cdot$ 230  + (`r m1$coefficients[4]*1000`/1000) $\cdot$ 230^2^ + (`r m1$coefficients[5]`) $\cdot$ 0 + `r m1$coefficients[6]` $\cdot$ 1 + `r m1$coefficients[7]` $\cdot$ 0 +  (`r m1$coefficients[8]`) $\cdot$ 4 = 12.15224. 
+`r m1$coefficients[1]`  $\cdot$ 1 +  
+(`r m1$coefficients[2]`) $\cdot$ 440 +  
+(`r m1$coefficients[3]`) $\cdot$ 230  +   
+(`r m1$coefficients[4]*1000`/1000) $\cdot$ 230^2^ +   
+(`r m1$coefficients[5]`) $\cdot$ 0 +   
+`r m1$coefficients[6]` $\cdot$ 1 +   
+`r m1$coefficients[7]` $\cdot$ 0 +    
+(`r m1$coefficients[8]`) $\cdot$ 4    
+= 12.15224. 
 
 
 # Predictions Based on the Model Estimates: `predict()` & `newdata`
@@ -84,7 +97,8 @@ The model's fitted values can be seen as a particular case of predictions based 
 
 But, of course, you can use the model to predict the dependent variable for any set of values of the dependent variable. For that purpose you can use the function `predict()`.   
 
-The usage of `predict()` that I show here only uses two arguments:  
+The usage of `predict()` that I show here only uses two arguments:   
+
 - a previously estimated model,
 - a data frame giving the values of the $x$'s for which you want a prediction of the model; the argument is called `newdata`.
 
@@ -158,7 +172,9 @@ In other words, we must:
 The only remaining question is: constant at what value?^[If you want to be picky, you could bring another question. What values do we give for the variable on the horizontal axis? One candidate is to use the values in the sample. Another candidate could be to give it only two values, the minimum and the maximum of that variable. Many things would work, as long as we cover at least the range of that variable.] A common candidate is the mean, if the variable is numeric, or the mode, if the variable is categorical. But any other value is acceptable.  
 
 
-Thanks to the section above, you now know how to solve this: use the function `predict()` and an appropriate `newdata`. Here is an example.  
+Thanks to the section above, you now know how to solve this: use the function `predict()` and an appropriate `newdata`. Below, there is an example.  
+
+### Mean or Mode Function
 
 Notice that, because I'm lazy, I first create a function that will return either the mean or the mode of the variable, depending on the type of vector.
 
@@ -175,6 +191,9 @@ mean.or.mode <- function(x) {
 }
 ```
 
+
+### Evaluation Data Set
+
 Then I create the "other things equal except `disp`".
 
 ```{r}
@@ -186,8 +205,13 @@ new.df.D <- mtcars %>%
          am = mean.or.mode(am),
          carb = mean.or.mode(carb)
          )
-new.df.D
+
+new.df.D %>%
+  as_tibble()
 ```
+
+
+### Predictions
 
 Finally, I used the new data for predictions (and add it them to the original data, but this is not the only/best way of doing it).
 
@@ -195,6 +219,8 @@ Finally, I used the new data for predictions (and add it them to the original da
 mtcars <- mtcars %>%
   mutate(pred.D = predict(m1, newdata = new.df.D))
 ```
+
+### Plot
 
 We can now plot the straight line.
 
@@ -292,7 +318,9 @@ new.df.F <- mtcars %>%
          am = mean.or.mode(am),
          carb = mean.or.mode(carb)
          )
-new.df.F
+
+new.df.F %>%
+  as_tibble()
 ```
 
 Then, make the prediction (adding it to the original data set, here).

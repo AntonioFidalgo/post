@@ -1,0 +1,293 @@
+---
+title: "Mastering R Chunk Options"
+author: "Andreia Pinto"
+date: 2022-03-07
+description: "This post illustrates the use of selected relevant R chunk options."
+tags: ["basics", "chunk"]
+categories: ["Rmd basics"]
+link-citations: true
+ShowToc: true
+editPost:
+    URL: "https://github.com/AntonioFidalgo/post/blob/master/s-chunkoptions/index.Rmd"
+    Text: "Rmd Source Code \U0001f4ce"
+---
+
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
+
+
+<p>Thanks to <code>knitr</code> package, we have access to dozens of chunk options that allow us to customize nearly all components of code chunks. These options will then control the behavior of the R chunk, namely regarding to styling its output.</p>
+<div id="setting-r-chunk-options" class="section level1">
+<h1>Setting R Chunk Options</h1>
+<p>Chunk options are written in the form <code>option=value</code>. We can apply them either globally or to individual code chunks.</p>
+<div id="globally" class="section level3">
+<h3>Globally</h3>
+<p>(All R chunks in a document): Call <code>knitr::opts_chunk$set()</code> in a code chunk, usually the first one. If you want two or more global options, separate them with a comma. E.g.:</p>
+<div id="one-global-option" class="section level4">
+<h4>One Global option</h4>
+<pre class="markdown"><code>```{r setup}
+knitr::opts_chunk$set(option=value)
+```</code></pre>
+</div>
+<div id="two-global-options" class="section level4">
+<h4>Two Global options</h4>
+<pre class="markdown"><code>```{r setup}
+knitr::opts_chunk$set(option1=value, option2=value)
+```</code></pre>
+</div>
+</div>
+<div id="individual-code-chunks" class="section level3">
+<h3>Individual Code Chunks</h3>
+<p>Add chunk options within the braces <code>{}</code> of the R chunk. As previously, if you want two or more options, separate them with a comma. By default there is a special option that labels the R chunk. This option does not need the <code>option</code> tag, meaning you can directly write the label you want. Each label should be unique, or else <code>knitr</code> will throw an error. E.g.:</p>
+<div id="only-label" class="section level4">
+<h4>Only Label</h4>
+<pre class="markdown"><code>```{r chunk-label-1}
+```</code></pre>
+</div>
+<div id="label-one-option" class="section level4">
+<h4>Label + One Option</h4>
+<pre class="markdown"><code>```{r chunk-label-2, option=value}
+```</code></pre>
+</div>
+<div id="label-two-options" class="section level4">
+<h4>Label + Two Options</h4>
+<pre class="markdown"><code>```{r chunk-label-3, option1=value, option2=value}
+```</code></pre>
+</div>
+</div>
+</div>
+<div id="most-common-chunk-options" class="section level1">
+<h1>Most Common Chunk Options<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a></h1>
+<div id="eval-truefalse" class="section level3">
+<h3><code>eval = TRUE/FALSE</code></h3>
+<p>Determines whether to evaluate (i.e. run) the current R chunk. It is <code>TRUE</code> by default.</p>
+<div id="true" class="section level5">
+<h5>TRUE</h5>
+<pre class="r"><code>2 + 2</code></pre>
+<pre><code>[1] 4</code></pre>
+</div>
+<div id="false" class="section level5">
+<h5>FALSE</h5>
+<p><em>Since the code is not run, there is no result to be shown. Any object defined in the chunk will NOT affect the document.</em></p>
+<pre class="r"><code>2 + 2</code></pre>
+</div>
+</div>
+<div id="include-truefalse" class="section level3">
+<h3><code>include = TRUE/FALSE</code></h3>
+<p>Determines whether to include the code in the output document. It is <code>TRUE</code> by default.</p>
+<div id="true-1" class="section level5">
+<h5>TRUE</h5>
+<pre class="r"><code>2 + 2</code></pre>
+<pre><code>[1] 4</code></pre>
+</div>
+<div id="false-1" class="section level5">
+<h5>FALSE</h5>
+<p><em>When we ask R to not include the code, all elements are hidden. This includes R chunk, output, messages and warnings.</em><a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a><br />
+<em>Nonetheless, the code is still run, meaning that it still affects the document, and can be called or used forward in the document.</em><a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a></p>
+</div>
+</div>
+<div id="collapse-truefalse" class="section level3">
+<h3><code>collapse = TRUE/FALSE</code></h3>
+<p>Determines whether to collapse all the source and output blocks created by the chunk into a single block. It is <code>FALSE</code> by default.</p>
+<div id="true-2" class="section level5">
+<h5>TRUE</h5>
+<pre class="r"><code>2 + 2
+[1] 4</code></pre>
+</div>
+<div id="false-2" class="section level5">
+<h5>FALSE</h5>
+<pre class="r"><code>2 + 2</code></pre>
+<pre><code>[1] 4</code></pre>
+</div>
+</div>
+<div id="echo-truefalse" class="section level3">
+<h3><code>echo = TRUE/FALSE</code></h3>
+<p>Determines whether to display the code in the code chunk above its results in the final document.</p>
+<div id="true-3" class="section level5">
+<h5>TRUE</h5>
+<pre class="r"><code>2 + 2</code></pre>
+<pre><code>[1] 4</code></pre>
+</div>
+<div id="false-3" class="section level5">
+<h5>FALSE</h5>
+<pre><code>[1] 4</code></pre>
+</div>
+</div>
+<div id="results-markuphideholdasis" class="section level3">
+<h3><code>results = 'markup'/'hide'/'hold'/'asis'</code></h3>
+<p>Determines how to deal with the results. It is <code>'markup'</code> by default.</p>
+<div id="markup" class="section level5">
+<h5>‘markup’</h5>
+<p><em>Marks up output with the appropriate environment depending on output format.</em></p>
+<pre class="r"><code>2 + 2</code></pre>
+<pre><code>[1] 4</code></pre>
+<pre class="r"><code>3 * 4</code></pre>
+<pre><code>[1] 12</code></pre>
+</div>
+<div id="hide" class="section level5">
+<h5>‘hide’</h5>
+<p><em>Hides all results of the chunk. However, the code is still run, meaning that any object defined by it can be used forward in the document.</em></p>
+<pre class="r"><code>2 + 2
+3 * 4</code></pre>
+</div>
+<div id="hold" class="section level5">
+<h5>‘hold’</h5>
+<p><em>Holds all output pieces to display them only after the end of the chunk. It is particularly helpful when grouping multiple figures.</em></p>
+<pre class="r"><code>2 + 2
+3 * 4</code></pre>
+<pre><code>[1] 4
+[1] 12</code></pre>
+</div>
+<div id="asis" class="section level5">
+<h5>‘asis’</h5>
+<p><em><code>knitr</code> will pass through results without reformatting them, rendering them in an uglier format.</em></p>
+<pre class="r"><code>2 + 2</code></pre>
+<p>[1] 4</p>
+<pre class="r"><code>3 * 4</code></pre>
+<p>[1] 12</p>
+</div>
+</div>
+<div id="error-truefalse" class="section level3">
+<h3><code>error = TRUE/FALSE</code></h3>
+<p>Determines the behavior in case of error. It is <code>FALSE</code> by default.</p>
+<div id="true-4" class="section level5">
+<h5>TRUE</h5>
+<p><em>Displays the error in output document.</em></p>
+<pre class="r"><code>3(2 + 2)</code></pre>
+<pre><code>Error in eval(expr, envir, enclos): attempt to apply non-function</code></pre>
+</div>
+<div id="false-4" class="section level5">
+<h5>FALSE</h5>
+<p><em>Makes the computation stop.</em></p>
+</div>
+</div>
+<div id="message-truefalse-warning-truefalse" class="section level3">
+<h3><code>message = TRUE/FALSE</code> &amp; <code>warning = TRUE/FALSE</code></h3>
+<p>Determine whether to display messages and warnings, respectively, in output document. They are both <code>TRUE</code> by default.</p>
+</div>
+<div id="cache-truefalse" class="section level3">
+<h3><code>cache = TRUE/FALSE</code></h3>
+<p>Determines whether to cache the results for future compilations. <code>knitr</code> will reuse the results until the code chunk is altered. It is <code>FALSE</code> by default.</p>
+</div>
+<div id="fig.align-leftcenterright" class="section level3">
+<h3><code>fig.align = 'left'/'center'/'right'</code></h3>
+<p>Determines how graphics are aligned in the final document.</p>
+<!--
+##### 'left'
+
+
+```r
+knitr::include_graphics("Logo_CLSBE.png")
+```
+
+<img src="Logo_CLSBE.png" width="35%" style="display: block; margin: auto auto auto 0;" />
+
+-->
+<div id="center" class="section level5">
+<h5>‘center’</h5>
+<pre class="r"><code>knitr::include_graphics(&quot;Logo_CLSBE.png&quot;)</code></pre>
+<p><img src="Logo_CLSBE.png" width="35%" style="display: block; margin: auto;" /></p>
+<!-- 
+
+##### 'right'
+
+
+```r
+knitr::include_graphics("Logo_CLSBE.png")
+```
+
+<img src="Logo_CLSBE.png" width="35%" style="display: block; margin: auto 0 auto auto;" />
+
+-->
+</div>
+</div>
+<div id="fig.show-asishideholdanimate" class="section level3">
+<h3><code>fig.show = 'asis'/'hide'/'hold'/'animate'</code></h3>
+<p>Determines how to deal with the plots generated by the chunk. It is <code>'asis'</code> by default.</p>
+<div id="asis-1" class="section level5">
+<h5>‘asis’</h5>
+<p><em>Shows plots exactly in places where they were generated.</em></p>
+<pre class="r"><code>fig1 &lt;- ggplot(mtcars, aes(x=wt, y=mpg, col=factor(cyl))) +
+  geom_point()
+
+fig1</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-17-1.png" width="25%" /></p>
+<pre class="r"><code>fig2 &lt;- ggplot(mtcars, aes(y=mpg, col=factor(cyl))) +
+  geom_bar()
+
+fig2</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-17-2.png" width="25%" /></p>
+</div>
+<div id="hide-1" class="section level5">
+<h5>‘hide’</h5>
+<p><em>Hides all plots generated in the chunk.</em></p>
+<pre class="r"><code>fig1 &lt;- ggplot(mtcars, aes(x=wt, y=mpg, col=factor(cyl))) +
+  geom_point()
+
+fig1</code></pre>
+<pre class="r"><code>fig2 &lt;- ggplot(mtcars, aes(y=mpg, col=factor(cyl))) +
+  geom_bar()
+
+fig2</code></pre>
+</div>
+<div id="hold-1" class="section level5">
+<h5>‘hold’</h5>
+<p><em>Holds all plots to display them only after the end of the chunk. It is particularly helpful when grouping multiple figures.</em></p>
+<pre class="r"><code>fig1 &lt;- ggplot(mtcars, aes(x=wt, y=mpg, col=factor(cyl))) +
+  geom_point()
+
+fig1
+
+fig2 &lt;- ggplot(mtcars, aes(y=mpg, col=factor(cyl))) +
+  geom_bar()
+
+fig2</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-19-1.png" width="25%" /><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-19-2.png" width="25%" /></p>
+</div>
+<div id="animate" class="section level5">
+<h5>‘animate’</h5>
+<p><em>Combines all of the plots created by the chunk into an animation.</em><a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a></p>
+</div>
+</div>
+<div id="fig.cap-string" class="section level3">
+<h3><code>fig.cap = string</code></h3>
+<p>Determines the character string to be used as a figure caption.</p>
+</div>
+<div id="fig.width-value-fig.height-value" class="section level3">
+<h3><code>fig.width = value</code> &amp; <code>fig.height = value</code></h3>
+<p>Determine the width and height to use in R plots created by the chunk. They are both <code>7</code> by default.<a href="#fn5" class="footnote-ref" id="fnref5"><sup>5</sup></a></p>
+<p>Optionally, you can use the option <code>fig.dim = c(value1, value2)</code>, which means <code>fig.width = value1</code> and <code>fig.height = value2</code>.</p>
+</div>
+<div id="out.width-value-out.height-value" class="section level3">
+<h3><code>out.width = value</code> &amp; <code>out.height = value</code></h3>
+<p>Determine the width and height to scale plots in the final output. They are both <code>NULL</code> by default. The values can be in any unit recognized by output, for example, <code>"55%"</code> or <code>"50px"</code>.</p>
+</div>
+</div>
+<div id="summary-list" class="section level1">
+<h1>Summary List</h1>
+<pre><code># A tibble: 13 × 3
+   Option                Description Default  
+   &lt;chr&gt;                       &lt;int&gt; &lt;chr&gt;    
+ 1 eval                            1 TRUE     
+ 2 include                         2 TRUE     
+ 3 collapse                        3 FALSE    
+ 4 echo                            4 TRUE     
+ 5 results                         5 &#39;markup&#39; 
+ 6 error                           6 TRUE     
+ 7 message                         7 TRUE     
+ 8 warning                         8 TRUE     
+ 9 fig.align                       9 &#39;default&#39;
+10 fig.cap                        10 NULL     
+11 fig.height, fig.width          11 7        
+12 fig.show                       12 &#39;asis&#39;   
+13 out.height, out.width          13 NULL     </code></pre>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>The complete list of functions can be found at the <code>knitr</code>’s creator, Yihui Xie, <a href="https://yihui.name/knitr/options">webpage</a><a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p><code>include</code> works as a sum of many chunk options, such as <code>echo</code>, <code>results</code>, <code>message</code>, <code>warning</code> and <code>fig.show</code>.<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
+<li id="fn3"><p>A simple example of the utility of this option is when we want to call a package with <code>library()</code>, but do not want to show this action, since it is not useful for the information in the document.<a href="#fnref3" class="footnote-back">↩︎</a></p></li>
+<li id="fn4"><p>This requires a more profound knowledge of <code>ggplot2</code>.<a href="#fnref4" class="footnote-back">↩︎</a></p></li>
+<li id="fn5"><p>When you insert a number, x, it will return the output in x inches. There is a need to insert <code>cm</code>, if you want to use that measure instead.<a href="#fnref5" class="footnote-back">↩︎</a></p></li>
+</ol>
+</div>
