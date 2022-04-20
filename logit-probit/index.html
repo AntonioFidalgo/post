@@ -1,0 +1,287 @@
+---
+title: "Logit & Probit Models"
+author: "Antonio Fidalgo"
+date: 2022-04-19
+description: "This post illustrates  three issues related to the logit/probit models in R: parameters estimation, marginal effects calculations and probabilities predictions."
+tags: ["probit", "logit", "plot", "fit"]
+categories: ["logit", "probit"]
+link-citations: true
+ShowToc: true
+editPost:
+    URL: "https://github.com/AntonioFidalgo/post/blob/main/logit-probit/index.Rmd"
+    Text: "Rmd Source Code \U0001f4ce"
+---
+
+
+
+<div id="logit-probit" class="section level1">
+<h1>Logit &amp; Probit</h1>
+<p>Logit and probit models are used to estimate the relationship between a limited dependent variable <span class="math inline">\(y\)</span>, and a set of explanatory variables through an appropriate function, logistic or cumulative normal, respectively.</p>
+<p>Because the dependent can only have a limited number of values/categories, what these models actually try to estimate is the probability of each category. Here, <span class="math inline">\(y\)</span> can only take two values, 0/1.<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> Hence, we will estimate the probability of observing a 1:</p>
+<p><span class="math display">\[
+p=P(y=1|X) = F(X\beta)
+\]</span></p>
+<p>The difference between the models is simply on the choice of the <span class="math inline">\(F(\cdot)\)</span>:</p>
+<p><span class="math display">\[\begin{align*}
+F(X\beta) &amp;= \begin{cases} 
+\frac{e^{X\beta}}{1+e^{X\beta}} \quad \text{ (logit)} \\
+\Phi(X\beta) \quad\text{ (probit)}
+\end{cases}
+\end{align*}\]</span></p>
+<div id="data-set-used-here" class="section level3">
+<h3>Data Set Used Here</h3>
+<p>For the examples below, I will use a data from the {titanic} package.</p>
+<pre class="r"><code>library(titanic)
+titanic &lt;- titanic::titanic_train
+names(titanic)</code></pre>
+<pre><code>##  [1] &quot;PassengerId&quot; &quot;Survived&quot;    &quot;Pclass&quot;      &quot;Name&quot;        &quot;Sex&quot;        
+##  [6] &quot;Age&quot;         &quot;SibSp&quot;       &quot;Parch&quot;       &quot;Ticket&quot;      &quot;Fare&quot;       
+## [11] &quot;Cabin&quot;       &quot;Embarked&quot;</code></pre>
+<p>The variable we wish to explained is <code>Survived</code>, a 0/1 variable informing about whether the individual survived the accident or not. A brief description of the remaining variables can be found <a href="https://www.kaggle.com/c/titanic/data">here</a>.</p>
+</div>
+</div>
+<div id="estimation-glm-instead-of-lm" class="section level1">
+<h1>Estimation: <code>glm()</code> Instead of <code>lm()</code></h1>
+<p>The estimation of the logit/probit models is very similar to the estimation of the linear model. <a href="https://antoniofidalgo.page/routeR/post/lm/">Recall</a>, the linear model uses the function <code>lm()</code>. We will now use the function <code>glm()</code>, which stands for <strong>generalized</strong> linear models.</p>
+<div id="a-formula-a-data-frame-a-family" class="section level3">
+<h3>A Formula, a Data Frame &amp;… a Family</h3>
+<p>The relevant difference with respect to <code>lm()</code> is that <code>glm()</code> requires a <code>family</code> argument. This will take a different value depending on what model one wants to estimate:<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a></p>
+<ul>
+<li><code>family = binomial(link="logit")</code> for the logit model,</li>
+<li><code>family = binomial(link="probit")</code> for the probit model.</li>
+</ul>
+</div>
+<div id="example" class="section level3">
+<h3>Example</h3>
+<p>So here is our first logit.</p>
+<pre class="r"><code>l1 &lt;- glm(Survived ~ Age + Sex + Fare + Pclass,
+          data = titanic,
+          family = binomial(link=&quot;logit&quot;))</code></pre>
+<p>And here is our first probit.</p>
+<pre class="r"><code>p1 &lt;- glm(Survived ~ Age + Sex + Fare + Pclass,
+          data = titanic,
+          family = binomial(link=&quot;probit&quot;))</code></pre>
+<p>As for the linear model, <code>summary()</code> is a good choice for showing the results, i.e., <span class="math inline">\(\beta\)</span> coefficients, <span class="math inline">\(t-\)</span>tests, etc.</p>
+<pre class="r"><code>summary(l1)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = Survived ~ Age + Sex + Fare + Pclass, family = binomial(link = &quot;logit&quot;), 
+##     data = titanic)
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -2.7386  -0.6792  -0.3954   0.6488   2.4642  
+## 
+## Coefficients:
+##               Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)  4.9880403  0.5721894   8.717  &lt; 2e-16 ***
+## Age         -0.0367073  0.0076795  -4.780 1.75e-06 ***
+## Sexmale     -2.5181969  0.2078562 -12.115  &lt; 2e-16 ***
+## Fare         0.0005373  0.0021821   0.246    0.805    
+## Pclass      -1.2697410  0.1586252  -8.005 1.20e-15 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 964.52  on 713  degrees of freedom
+## Residual deviance: 647.23  on 709  degrees of freedom
+##   (177 observations deleted due to missingness)
+## AIC: 657.23
+## 
+## Number of Fisher Scoring iterations: 5</code></pre>
+<pre class="r"><code>summary(p1)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = Survived ~ Age + Sex + Fare + Pclass, family = binomial(link = &quot;probit&quot;), 
+##     data = titanic)
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -2.8622  -0.7029  -0.4010   0.6547   2.4820  
+## 
+## Coefficients:
+##               Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)  2.8226979  0.3175721   8.888  &lt; 2e-16 ***
+## Age         -0.0201327  0.0043482  -4.630 3.65e-06 ***
+## Sexmale     -1.4812605  0.1161682 -12.751  &lt; 2e-16 ***
+## Fare         0.0003583  0.0012840   0.279     0.78    
+## Pclass      -0.7079385  0.0889073  -7.963 1.68e-15 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 964.52  on 713  degrees of freedom
+## Residual deviance: 649.92  on 709  degrees of freedom
+##   (177 observations deleted due to missingness)
+## AIC: 659.92
+## 
+## Number of Fisher Scoring iterations: 5</code></pre>
+<p>The analysis of the output, though very similar to the case of the linear model, goes beyond the scope of this note. Recall, however, the major difference with respect to the linear model: the
+<span class="math inline">\(\beta\)</span> coefficients are <strong>not</strong> the marginal effects of the variable on the probability of the observation being a one.</p>
+</div>
+</div>
+<div id="predicted-probabilities" class="section level1">
+<h1>Predicted Probabilities</h1>
+<p>The models’ predicted probabilities for each observation can be obtained in various ways, including in ways very similar to the linear model (see <a href="https://antoniofidalgo.page/routeR/post/lmfit/">this post</a>).</p>
+<div id="fitted-values" class="section level3">
+<h3>Fitted Values</h3>
+<p>The fitted values of the model are the predicted probabilities for each observation in the data set. To obtain them, simply call the object from the estimated model with the name <code>fitted.values</code>. Here,</p>
+<pre class="r"><code>l1$fitted.values %&gt;%
+  as_tibble()</code></pre>
+<pre><code>## # A tibble: 714 × 1
+##     value
+##     &lt;dbl&gt;
+##  1 0.105 
+##  2 0.914 
+##  3 0.557 
+##  4 0.921 
+##  5 0.0679
+##  6 0.320 
+##  7 0.198 
+##  8 0.548 
+##  9 0.876 
+## 10 0.739 
+## # … with 704 more rows</code></pre>
+</div>
+<div id="using-predict.glm-on-models-data" class="section level3">
+<h3>Using <code>predict.glm()</code> on Model’s Data</h3>
+<p>This function is similar to <code>predict()</code> that we used for the linear model, but it allows further tweaks related to generalized linear models.</p>
+<p>To fine-tune the use for these models, we need to use an additional argument: <code>type = "response"</code>. This ensures that the predictions are in terms of the <span class="math inline">\(y\)</span> variable, i.e., probabilities.</p>
+<p>Out of the box we get these predicted probabilities by giving also the estimated “glm” object to the function.</p>
+<pre class="r"><code>predict.glm(l1, type = &quot;response&quot;) %&gt;%
+  as_tibble</code></pre>
+<pre><code>## # A tibble: 714 × 1
+##     value
+##     &lt;dbl&gt;
+##  1 0.105 
+##  2 0.914 
+##  3 0.557 
+##  4 0.921 
+##  5 0.0679
+##  6 0.320 
+##  7 0.198 
+##  8 0.548 
+##  9 0.876 
+## 10 0.739 
+## # … with 704 more rows</code></pre>
+</div>
+<div id="using-predict.glm-on-any-data" class="section level3">
+<h3>Using <code>predict.glm()</code> on any Data</h3>
+<p>Of course, the predictions of the model can be obtained for out-of-sample observations. For this, we need to create an “evaluation” new data set giving the values for which we wish to evaluate the probabilities.</p>
+<p>For instance, to obtained the probability of surviving of a male, compared to a female with exactly the same characteristics,<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a> I would do the following. First create the evaluation data set:</p>
+<pre class="r"><code>mean.or.mode &lt;- function(x) {
+  if (is.factor(x)) {
+        tq = unclass(table(x))
+        j = which(tq == max(tq))[1]
+        sort(unique(x))[j]
+    }
+    else {
+        mean(x, na.rm = TRUE)
+    }
+}
+
+new.df.M &lt;- titanic %&gt;%
+  select(Age, Sex, Fare, Pclass) %&gt;% # using the same variables as in the estimated model
+  mutate(Sex = &quot;male&quot;, 
+         Age =  mean.or.mode(Age),
+         Fare = mean.or.mode(Fare),
+         Pclass = mean.or.mode(Pclass)
+         ) %&gt;%
+  distinct() # keeps distinct rows
+
+new.df.M %&gt;%
+  as_tibble()</code></pre>
+<pre><code>## # A tibble: 1 × 4
+##     Age Sex    Fare Pclass
+##   &lt;dbl&gt; &lt;chr&gt; &lt;dbl&gt;  &lt;dbl&gt;
+## 1  29.7 male   32.2   2.31</code></pre>
+<p>Then, calculate the predictions based on that evaluation set.</p>
+<pre class="r"><code>predict.glm(l1, newdata = new.df.M, type = &quot;response&quot;)</code></pre>
+<pre><code>##         1 
+## 0.1773502</code></pre>
+</div>
+<div id="plotting-probabilities" class="section level3">
+<h3>Plotting Probabilities</h3>
+<p>I can’t resist plotting these probabilities for, say, different ages and sexes (see <a href="https://antoniofidalgo.page/routeR/post/lmfit/">this post</a>).</p>
+<p>First, create the evaluation sets and the calculate the predicted probabilities.</p>
+<pre class="r"><code>new.df.AM &lt;- titanic %&gt;%
+  select(Age, Sex, Fare, Pclass) %&gt;% 
+  mutate(Sex = &quot;male&quot;, 
+         Age =  Age,
+         Fare = mean.or.mode(Fare),
+         Pclass = mean.or.mode(Pclass)
+         ) 
+new.df.AF &lt;- titanic %&gt;%
+  select(Age, Sex, Fare, Pclass) %&gt;%
+  mutate(Sex = &quot;female&quot;, 
+         Age =  Age,
+         Fare = mean.or.mode(Fare),
+         Pclass = mean.or.mode(Pclass)
+         ) 
+
+titanic &lt;- titanic %&gt;%
+  mutate(fitM = predict.glm(l1, newdata = new.df.AM, type = &quot;response&quot;),
+         fitF = predict.glm(l1, newdata = new.df.AF, type = &quot;response&quot;))</code></pre>
+<p>Then plot.</p>
+<pre class="r"><code>library(scales) # for the colors
+titanic %&gt;%
+  ggplot(aes(x= Age, y=Survived)) +
+  geom_jitter(aes(color=Sex), width = 0, height = 0.1, alpha=0.6) + # jitter to better see the points
+  geom_line(aes(x= Age, y=fitM), color= hue_pal()(2)[2])+
+  geom_line(aes(x= Age, y=fitF), color= hue_pal()(2)[1]) </code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+</div>
+<div id="predicted-probability-maximum-likelihood" class="section level3">
+<h3>Predicted Probability &amp; Maximum Likelihood</h3>
+<p>Just a little aside point about the method of estimation, namely maximum likelihood, and the predicted probabilities.</p>
+<p>Roughly speaking, the method chooses the parameters so that the sample at hand has the highest probability of being observed.</p>
+<p>One implication is the following. The probability of observing a class, e.g., <code>Survived</code>, must be matched by the models predictions for the given sample and the estimated coefficients. Here is the confirmation.</p>
+<p><strong>Mean observed probability of survival</strong><a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a></p>
+<pre class="r"><code>titanic %&gt;%
+  filter(!is.na(Age)) %&gt;%
+  summarise(mean = mean(Survived))</code></pre>
+<pre><code>##        mean
+## 1 0.4061625</code></pre>
+<p><strong>Mean model’s probability of survival</strong></p>
+<pre class="r"><code>predict.glm(l1, type = &quot;response&quot;) %&gt;%
+  mean()</code></pre>
+<pre><code>## [1] 0.4061625</code></pre>
+</div>
+</div>
+<div id="marginal-effects" class="section level1">
+<h1>Marginal Effects</h1>
+<p>The logit and probit are models for estimating a probability based on a set of explanatory variables. If we trust enough our model, we can then further ask how each of these latter variables contributes to the change in probability. In other words, we can be interested in the marginal effect of a variable on the outcome.<a href="#fn5" class="footnote-ref" id="fnref5"><sup>5</sup></a></p>
+<p>For estimating these effects, we will use the package {mfx}. This latter contains the appropriately names functions <code>logitmfx()</code> and <code>probitmfx()</code>.</p>
+<pre class="r"><code>library(mfx)
+l1mfx &lt;- logitmfx(Survived ~ Age + Sex + Fare + Pclass, data = titanic)
+l1mfx</code></pre>
+<pre><code>## Call:
+## logitmfx(formula = Survived ~ Age + Sex + Fare + Pclass, data = titanic)
+## 
+## Marginal Effects:
+##               dF/dx   Std. Err.        z     P&gt;|z|    
+## Age     -0.00858079  0.00178861  -4.7975 1.607e-06 ***
+## Sexmale -0.55454785  0.03654945 -15.1725 &lt; 2.2e-16 ***
+## Fare     0.00012561  0.00051035   0.2461    0.8056    
+## Pclass  -0.29681767  0.03660501  -8.1087 5.118e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## dF/dx is for discrete change for the following variables:
+## 
+## [1] &quot;Sexmale&quot;</code></pre>
+<p>Notice that the default option for these {mfx} functions is to calculate the marginal effect for mean (MEM) observation. This can be changed with a value of the argument <code>atmean</code> set to <code>FALSE</code> and thus obtain the average marginal effect (AME). There is generally a difference between the two values, but it is arguably not essential. However, the for the interpretation of the coefficient, this point matters.</p>
+<p>The above code tells us that the average passenger (in age, fare price and P. class), the chances of surviving decreased by around 55% points if he was a male (in relation to a female).</p>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>This is for the case to which the logit and probit models apply. In general, classification problems can involve explained variables with several categories.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p>There are several other generalized linear models that one can estimate with <code>glm()</code>.<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
+<li id="fn3"><p>Another way of expressing: “all other things equal”.<a href="#fnref3" class="footnote-back">↩︎</a></p></li>
+<li id="fn4"><p>Notice that I need to remove the observations that do not have information on the age of the individuals. This is because these observations are also removed when estimating model, by construction. Thus, the two calculated means are based on the same data set.<a href="#fnref4" class="footnote-back">↩︎</a></p></li>
+<li id="fn5"><p>Please check your preferred source for more theoretical details on this issue.<a href="#fnref5" class="footnote-back">↩︎</a></p></li>
+</ol>
+</div>

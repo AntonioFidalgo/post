@@ -322,8 +322,7 @@ Determine the width and height to scale plots in the final output. They are both
 
 ```{r list, include=TRUE, echo=FALSE}
 opt.list <- tibble(Option=c("eval", "include", "collapse", "echo", "results", "error", "message", "warning", "fig.align", "fig.cap", "fig.height, fig.width", "fig.show", "out.height, out.width"),
-                       Description=c(1:13),
-                       Default=c("TRUE", "TRUE", "FALSE", "TRUE", "'markup'", "TRUE", "TRUE", "TRUE", "'default'", "NULL", 7, "'asis'", "NULL"))
+                   Default=c("TRUE", "TRUE", "FALSE", "TRUE", "'markup'", "TRUE", "TRUE", "TRUE", "'default'", "NULL", 7, "'asis'", "NULL"))
 
 opt.list
 ```

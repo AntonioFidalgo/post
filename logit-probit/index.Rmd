@@ -1,0 +1,258 @@
+---
+title: "Logit & Probit Models"
+author: "Antonio Fidalgo"
+date: 2022-04-19
+description: "This post illustrates  three issues related to the logit/probit models in R: parameters estimation, marginal effects calculations and probabilities predictions."
+tags: ["probit", "logit", "plot", "fit"]
+categories: ["logit", "probit"]
+link-citations: true
+ShowToc: true
+editPost:
+    URL: "https://github.com/AntonioFidalgo/post/blob/main/logit-probit/index.Rmd"
+    Text: "Rmd Source Code \U0001f4ce"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = FALSE, echo = TRUE)
+library(magrittr)
+library(dplyr)
+library(ggplot2)
+```
+
+
+
+
+# Logit & Probit 
+
+
+Logit and probit models are used to estimate the relationship between a limited dependent variable $y$, and a set of explanatory variables through an appropriate function, logistic or cumulative normal, respectively.  
+
+Because the dependent can only have a limited number of values/categories, what these models actually try to estimate is the probability of each category. Here, $y$ can only take two values, 0/1.^[This is for the case to which the logit and probit models apply. In general, classification problems can involve explained variables with several categories.] Hence, we will estimate the probability of observing a 1:
+
+\[
+p=P(y=1|X) = F(X\beta)
+\]
+
+The difference between the models is simply on the choice of the $F(\cdot)$:
+
+\begin{align*}
+F(X\beta) &= \begin{cases} 
+\frac{e^{X\beta}}{1+e^{X\beta}} \quad \text{ (logit)} \\
+\Phi(X\beta) \quad\text{ (probit)}
+\end{cases}
+\end{align*}
+
+
+### Data Set Used Here 
+
+For the examples below, I will use a data from the {titanic} package.
+
+```{r}
+library(titanic)
+titanic <- titanic::titanic_train
+names(titanic)
+```
+
+The variable we wish to explained is `Survived`, a 0/1 variable informing about whether the individual survived the accident or not. A brief description of the remaining variables can be found [here](https://www.kaggle.com/c/titanic/data). 
+
+# Estimation: `glm()` Instead of `lm()`
+
+The estimation of the logit/probit models is very similar to the estimation of the linear model. [Recall](https://antoniofidalgo.page/routeR/post/lm/), the linear model uses the function `lm()`. We will now use the function `glm()`, which stands for **generalized** linear models. 
+
+
+
+### A Formula, a Data Frame &... a Family
+
+The relevant difference with respect to `lm()` is that `glm()` requires a `family` argument. This will take a different value depending on what model one wants to estimate:^[There are several other generalized linear models that one can estimate with `glm()`.]
+
+- `family = binomial(link="logit")` for the logit model,
+- `family = binomial(link="probit")` for the probit model.
+
+
+
+### Example
+
+So here is our first logit.
+
+```{r}
+l1 <- glm(Survived ~ Age + Sex + Fare + Pclass,
+          data = titanic,
+          family = binomial(link="logit"))
+```
+
+And here is our first probit.
+
+```{r}
+p1 <- glm(Survived ~ Age + Sex + Fare + Pclass,
+          data = titanic,
+          family = binomial(link="probit"))
+```
+
+
+As for the linear model, `summary()` is a good choice for showing the results, i.e., $\beta$ coefficients, $t-$tests, etc.
+
+```{r}
+summary(l1)
+summary(p1)
+```
+
+The analysis of the output, though very similar to the case of the linear model, goes beyond the scope of this note. Recall, however, the major difference with respect to the linear model: the 
+$\beta$ coefficients are **not** the marginal effects of the variable on the probability of the observation being a one. 
+
+
+
+# Predicted Probabilities 
+
+The models' predicted probabilities for each observation can be obtained in various ways, including in ways very similar to the linear model (see [this post](https://antoniofidalgo.page/routeR/post/lmfit/)).   
+
+
+
+### Fitted Values
+
+The fitted values of the model are the predicted probabilities for each observation in the data set. To obtain them, simply call the object from the estimated model with the name `fitted.values`. Here, 
+
+```{r}
+l1$fitted.values %>%
+  as_tibble()
+```
+
+### Using `predict.glm()`  on Model's Data
+
+This function is similar to `predict()` that we used for the linear model, but it allows further tweaks related to generalized linear models.  
+
+To fine-tune the use for these models, we need to use an additional argument: `type = "response"`. This ensures that the predictions are in terms of the $y$ variable, i.e., probabilities.  
+
+Out of the box we get these predicted probabilities by giving also the estimated "glm" object to the function.
+
+```{r}
+predict.glm(l1, type = "response") %>%
+  as_tibble
+```
+
+### Using `predict.glm()`  on any Data
+
+Of course, the predictions of the model can be obtained for out-of-sample observations. For this, we need to create an "evaluation" new data set giving the values for which we wish to evaluate the probabilities.  
+
+For instance, to obtained the probability of surviving of a male, compared to a female with exactly the same characteristics,^[Another way of expressing: "all other things equal".] I would do the following. First create the evaluation data set: 
+
+```{r}
+mean.or.mode <- function(x) {
+  if (is.factor(x)) {
+        tq = unclass(table(x))
+        j = which(tq == max(tq))[1]
+        sort(unique(x))[j]
+    }
+    else {
+        mean(x, na.rm = TRUE)
+    }
+}
+
+new.df.M <- titanic %>%
+  select(Age, Sex, Fare, Pclass) %>% # using the same variables as in the estimated model
+  mutate(Sex = "male", 
+         Age =  mean.or.mode(Age),
+         Fare = mean.or.mode(Fare),
+         Pclass = mean.or.mode(Pclass)
+         ) %>%
+  distinct() # keeps distinct rows
+
+new.df.M %>%
+  as_tibble()
+```
+
+Then, calculate the predictions based on that evaluation set.
+
+```{r}
+predict.glm(l1, newdata = new.df.M, type = "response")
+```
+
+### Plotting Probabilities
+
+I can't resist plotting these probabilities for, say, different ages and sexes (see [this post](https://antoniofidalgo.page/routeR/post/lmfit/)).  
+
+First, create the evaluation sets and the calculate the predicted probabilities.
+
+```{r}
+new.df.AM <- titanic %>%
+  select(Age, Sex, Fare, Pclass) %>% 
+  mutate(Sex = "male", 
+         Age =  Age,
+         Fare = mean.or.mode(Fare),
+         Pclass = mean.or.mode(Pclass)
+         ) 
+new.df.AF <- titanic %>%
+  select(Age, Sex, Fare, Pclass) %>%
+  mutate(Sex = "female", 
+         Age =  Age,
+         Fare = mean.or.mode(Fare),
+         Pclass = mean.or.mode(Pclass)
+         ) 
+
+titanic <- titanic %>%
+  mutate(fitM = predict.glm(l1, newdata = new.df.AM, type = "response"),
+         fitF = predict.glm(l1, newdata = new.df.AF, type = "response"))
+```
+
+Then plot. 
+
+```{r, message = FALSE, warning=FALSE}
+library(scales) # for the colors
+titanic %>%
+  ggplot(aes(x= Age, y=Survived)) +
+  geom_jitter(aes(color=Sex), width = 0, height = 0.1, alpha=0.6) + # jitter to better see the points
+  geom_line(aes(x= Age, y=fitM), color= hue_pal()(2)[2])+
+  geom_line(aes(x= Age, y=fitF), color= hue_pal()(2)[1]) 
+
+```
+
+
+### Predicted Probability & Maximum Likelihood
+
+
+Just a little aside point about the method of estimation, namely maximum likelihood, and the predicted probabilities.   
+
+Roughly speaking, the method chooses the parameters so that the sample at hand has the highest probability of being observed. 
+
+One implication is the following. The probability of observing a class, e.g., `Survived`, must be matched by the models predictions for the given sample and the estimated coefficients. Here is the confirmation.
+
+**Mean observed probability of survival**^[Notice that I need to remove the observations that do not have information on the age of the individuals. This is because these observations are also removed when estimating model, by construction. Thus, the two calculated means are based on the same data set.]
+```{r}
+titanic %>%
+  filter(!is.na(Age)) %>%
+  summarise(mean = mean(Survived))
+```
+
+**Mean model's probability of survival**
+```{r}
+predict.glm(l1, type = "response") %>%
+  mean()
+
+```
+
+
+
+
+
+# Marginal Effects
+
+The logit and probit are models for estimating a probability based on a set of explanatory variables. If we trust enough our model, we can then further ask how each of these latter variables contributes to the change in probability. In other words, we can be interested in the marginal effect of a variable on the outcome.^[Please check your preferred source for more theoretical details on this issue.]   
+
+For estimating these effects, we will use the package {mfx}. This latter contains the appropriately names functions `logitmfx()` and `probitmfx()`.   
+
+
+```{r, message=FALSE, warning=FALSE}
+library(mfx)
+l1mfx <- logitmfx(Survived ~ Age + Sex + Fare + Pclass, data = titanic)
+l1mfx
+```
+
+Notice that the default option for these {mfx} functions is to calculate the marginal effect for mean (MEM) observation. This can be changed with a value of the argument `atmean` set to `FALSE` and thus obtain the average marginal effect (AME). There is generally a difference between the two values, but it is arguably not essential. However, the for the interpretation of the coefficient, this point matters. 
+
+The above code tells us that the average passenger (in age, fare price and P. class), the chances of surviving decreased by around 55% points if he was a male (in relation to a female).
+
+
+
+
+
+
+
