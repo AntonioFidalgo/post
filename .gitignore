@@ -17,3 +17,7 @@ rsconnect
 .DS_Store
 .DS_Store?
 
+*.Rdata
+*.dta
+.Rdata
+.dta
