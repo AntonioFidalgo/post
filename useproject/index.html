@@ -1,0 +1,119 @@
+---
+title: "Use R Projects"
+author: "Antonio Fidalgo"
+date: 2022-05-10
+description: "A R project is a framework for keeping bundled together all the files related to a project. This post explains what a R projects entails, how to create and structure one and what are some of the advantages of using one."
+tags: ["R project", "workflow", "best practices"]
+categories: ["workflow"]
+link-citations: true
+ShowToc: true
+editPost:
+    URL: "https://github.com/AntonioFidalgo/post/blob/main/useproject/index.Rmd"
+    Text: "Rmd Source Code \U0001f4ce"
+---
+
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
+
+
+<div id="pros-projects" class="section level1">
+<h1>Pros’ Projects</h1>
+<p>Expert users, across coding languages, work in “projects”. These are simply bundles that include and link together all the necessary files in a given… project. The RStudio IDE offers an easy way to do just that.</p>
+<p>This step in R expertise is a low-hanging, rich fruit. Consider that you don’t need to change any file! In essence, you have a working directory<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> that will serve as the house of a R project.</p>
+<p>Telling RStudio that you work in a R project implies, under the hood, that files are not isolated but bundled together. This, in turn, facilitates greatly the connections between the files. In particular, <a href="https://antoniofidalgo.page/routeR/post/relativepath/">relative paths</a> are given and found in an efficient and consistent way.</p>
+<p>Creating a R project in RStudio also unlocks various powerful features. For instance, RStudio understands that all the Rmd files in the project’s working directory are part of a bundle. Therefore, it will offer the possibility of building them together into a single output. Books are built thus with each Rmd file being a chapter (or a section).</p>
+</div>
+<div id="creating-a-r-project" class="section level1">
+<h1>Creating a R Project</h1>
+<p>There are two main ways of creating a project:</p>
+<ol style="list-style-type: lower-alpha">
+<li>as the first step of a project,</li>
+<li>by using an existing working directory.</li>
+</ol>
+<p>Below, we briefly present these two ways. Note that the recommended approach is to start a R project as the first step.</p>
+<div id="r-project-from-new-directory" class="section level2">
+<h2>R Project from New Directory</h2>
+<p>To start a project as a R project, use the RStudio menu <code>File &gt; New Project...</code>.</p>
+<p>The pop-up window that appears couldn’t be more explicit. It takes you to the three panes shown in Figure <a href="#fig:project-wizzard">1</a>.</p>
+<ol style="list-style-type: decimal">
+<li>Click on <code>New Directory</code> in the first.</li>
+<li>Continue with <code>New Project</code> in the second.</li>
+<li>Chose a name for the working directory of your project as well as what directory it should belong too. If the default location is not satisfactory, you can chose another through <code>Browse...</code>.</li>
+</ol>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:project-wizzard"></span>
+<img src="{{< blogdown/postref >}}index_files/figure-html/project-wizzard-1.png" alt="Creating a R project from a new directory." width="672" />
+<p class="caption">
+Figure 1: Creating a R project from a new directory.
+</p>
+</div>
+<div id="project-name.rproj" class="section level3">
+<h3>project-name.Rproj</h3>
+<p>The <strong>name</strong> of the working directory is important. It will also be automatically used the for name of your R project. It should describe this latter appropriately.<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a></p>
+<p>A first file <strong>automatically</strong> populates your working directory. It is of a new type, namely a file with <strong>extension <code>.Rproj</code></strong>. Its content cannot be accessed. It would not be useful to access it anyway. Its presence in the directory simply means that the working directory is now considered as a “bundle” of files by RStudio.</p>
+</div>
+</div>
+<div id="r-project-from-existing-directory" class="section level2">
+<h2>R Project from Existing Directory</h2>
+<p>To create a R project from an existing directory, use the RStudio menu <code>File &gt; New Project...</code>.</p>
+<p>The pop-up window that appears couldn’t be more explicit.</p>
+<ol style="list-style-type: decimal">
+<li>The first is the same as in Figure <a href="#fig:project-wizzard">1</a>.</li>
+<li>Only, now you must chose the second option <code>Existing Directory</code>.</li>
+<li>This brings another pane where you must locate the folder that you want to use as working directory for your project.</li>
+</ol>
+<p>For instance, if you started working with a directory “Master-thesis”, you can now define that directory as the working directory of your project.</p>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:project-wizzard2"></span>
+<img src="{{< blogdown/postref >}}index_files/figure-html/project-wizzard2-1.png" alt="Creating a R project from an existing directory." width="672" />
+<p class="caption">
+Figure 2: Creating a R project from an existing directory.
+</p>
+</div>
+</div>
+</div>
+<div id="structure-of-a-r-project-working-directory" class="section level1">
+<h1>Structure of a R Project Working Directory</h1>
+<p>The working directory of your R project is… a working directory. Beyond the presence of a new <code>.Rproj</code> file, nothing would distinguish it from a regular folder where you gathered your files.</p>
+<p>The working directory of the R project is like a house for your analysis. Therefore, it is good practice to keep the place tidy, especially by giving it a sensible structure. Figure <a href="#fig:directory">3</a> offers a minimal example of such a structure.</p>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:directory"></span>
+<img src="directory-proj.png" alt="Example of tidy project working directory." width="50%" />
+<p class="caption">
+Figure 3: Example of tidy project working directory.
+</p>
+</div>
+<p>Notice the following elements.</p>
+<ul>
+<li>Data files have their dedicated folder, “Data”.</li>
+<li>Images, plots, gifs, etc… could all be parked in the same folder, “Figures”.</li>
+<li>Your <code>.Rmd</code> files can stay at the root of the directory.</li>
+<li>So does the bibliography file, <code>.bib</code>.</li>
+<li>Because the directory was created/assigned as a project, RStudio automatically added the .Rproj file.</li>
+</ul>
+</div>
+<div id="workflow-with-a-r-project" class="section level1">
+<h1>Workflow with a R Project</h1>
+<p>The workflow when using a R project implies a different starting point. Instead of directly opening a file to modify it, you now want to <strong>open a project.</strong> This will bring upfront the whole working directory in a new RStudio session. Some of the changes include:</p>
+<ul>
+<li>automatically opens the files that were open in the previous sessions,</li>
+<li>the files of the working directory are listed in the “Files” tab of a dedicated pane,</li>
+<li>the working directory is automatically and correctly set,<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a></li>
+<li>new features appear in tabs, …</li>
+</ul>
+<p>The starting point is therefore, in the RStudio menu, <code>File &gt; Open Project...</code>. You then browse through your directory to open the <code>.Rproj</code> file itself.</p>
+<div id="shortcut" class="section level3">
+<h3>Shortcut</h3>
+<p>Alternatively, since projects typically become part of the daily work, the RStudio IDE offers a shortcut for opening a R project in the form of a menu on the upper right corner. As shown in Figure <a href="#fig:open-rproj">4</a>, this menu conveniently keeps a list of the projects that you have recently opened so that they can be accessed in one click.</p>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:open-rproj"></span>
+<img src="shortcut.png" alt="Shortcut for opening a R project in RStudio." width="50%" />
+<p class="caption">
+Figure 4: Shortcut for opening a R project in RStudio.
+</p>
+</div>
+</div>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>I.e., a simple folder in your directory.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p>For instance, “class1” is probably not general enough, while “classes” might not be sufficiently specific. “Master-thesis” is an excellent name for a project.<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
+<li id="fn3"><p>The benefit of this feature can only be fully appreciated by the users who were at least once surprised and frustrated by the way RStudio sets the working directory when working with individual <code>.Rmd</code> files. It might sometimes be surprising. This problem does not exist in a R project.<a href="#fnref3" class="footnote-back">↩︎</a></p></li>
+</ol>
+</div>

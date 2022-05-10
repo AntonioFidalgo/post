@@ -3,7 +3,7 @@ title: "Portuguese Personel Records Sample"
 author: "Antonio Fidalgo"
 date: 2022-05-03
 description: "This post introduces a data set published by Statistics Portugal as well as a preliminary treatement of the data for an easier usage."
-tags: ["data", "data set", "ols", "wage estimation"]
+tags: ["data set", "ols", "wage estimation", "Portugal"]
 categories: ["ols"]
 link-citations: true
 ShowToc: true
@@ -23,7 +23,11 @@ library(formattable)
 
 
 
-# The Data Set
+# The Sample
+
+Our sample contains a very large number of observations, more than 4mio, for a selection of variables from the data set described below. It is available in `.dta` format [here.](sampleqp.dta)  
+
+### The Full Original Data Set
 
 The data set was collected by [Statistics Portugal (Instituto Nacional de Estatística)](https://www.ine.pt/xportal/xmain?xpgid=ine_main&xpid=INE) on variables related to the Portuguese labor market, including information related to the wage, the worker, the employer/firm, etc... In short, this is a very rich data set that has already allowed for numerous relevant studies (e.g., [Cabral and Mata (2003), _American Economic Review_](https://www.jstor.org/stable/pdf/3132279.pdf)^[Abstract: _Using a comprehensive data set of Portuguese manufacturing firms, we show that the firm size distribution is significantly right-skewed, evolving over time toward a lognormal distribution. We also show that selection accounts for very little of this evolution. Instead, we propose a simple theory based on financing constraints. A calibrated version of our model does a good job at explaining the evolution of the firm size distribution._], [Buhai, Portela, Teulings and van Vuuren  (2014), _Econometrica_](https://onlinelibrary.wiley.com/doi/epdf/10.3982/ECTA8688)^[Abstract: _This study documents two empirical facts using matched employer–employee data for Denmark and Portugal.  First, workers who are hired last, are the first to leave the firm. Second, workers' wages rise with seniority, where seniority is defined as a worker's tenure relative to the tenure of his colleagues. Controlling for tenure, the probability of a worker leaving the firm decreases with seniority. The increase in expected seniority with tenure explains a large part of the negative duration dependence of the separation hazard. Conditional on ten years of tenure, the wage differential between the 10th and the 90th percentiles of the seniority distribution is 1.1–1.4 percentage points in Denmark and 2.3–3.4 in Portugal._], etc) in a very large set of topics (e.g., income inequality, social mobility, returns to education, wage discrimination, etc)
 
@@ -49,10 +53,6 @@ knitr::include_graphics('nobs-time.png')
 
 The Banco de Portugal has produced a document that describes the various variables as well as selected details about their construction. Find it [here.](manual_qp_v7.pdf)
 
-
-## Our Sample
-
-Our sample contains a very large number of observations, more than 4mio, for a selection of variables from the above data set. It is available in `.dta` format [here.](sampleqp.dta)  
 
 
 # Reading the Data into R

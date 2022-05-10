@@ -1,0 +1,200 @@
+---
+title: "Portuguese Personel Records Sample"
+author: "Antonio Fidalgo"
+date: 2022-05-03
+description: "This post introduces a data set published by Statistics Portugal as well as a preliminary treatement of the data for an easier usage."
+tags: ["data set", "ols", "wage estimation", "Portugal"]
+categories: ["ols"]
+link-citations: true
+ShowToc: true
+editPost:
+    URL: "https://github.com/AntonioFidalgo/post/blob/main/qp/index.Rmd"
+    Text: "Rmd Source Code \U0001f4ce"
+---
+
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
+
+
+<div id="the-sample" class="section level1">
+<h1>The Sample</h1>
+<p>Our sample contains a very large number of observations, more than 4mio, for a selection of variables from the data set described below. It is available in <code>.dta</code> format <a href="sampleqp.dta">here.</a></p>
+<div id="the-full-original-data-set" class="section level3">
+<h3>The Full Original Data Set</h3>
+<p>The data set was collected by <a href="https://www.ine.pt/xportal/xmain?xpgid=ine_main&amp;xpid=INE">Statistics Portugal (Instituto Nacional de Estatística)</a> on variables related to the Portuguese labor market, including information related to the wage, the worker, the employer/firm, etc… In short, this is a very rich data set that has already allowed for numerous relevant studies (e.g., <a href="https://www.jstor.org/stable/pdf/3132279.pdf">Cabral and Mata (2003), <em>American Economic Review</em></a><a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>, <a href="https://onlinelibrary.wiley.com/doi/epdf/10.3982/ECTA8688">Buhai, Portela, Teulings and van Vuuren (2014), <em>Econometrica</em></a><a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>, etc) in a very large set of topics (e.g., income inequality, social mobility, returns to education, wage discrimination, etc)</p>
+<p>To get a better idea, notice the following features of the overall data set:</p>
+<ul>
+<li>more than 75 million observations,</li>
+<li>panel data structure, meaning that relevant statistics can be calculated for any given year and/or followed over time,</li>
+<li>individuals are tracked over time,</li>
+<li>period from 1986 to 2016,</li>
+<li>relatively high accuracy,</li>
+<li>publicly available (under qualified request),</li>
+<li>…</li>
+</ul>
+<p>Figure <a href="#fig:nobs-time">1</a> shows the number of observations in each year. Notice the absence of data for the year 2001 as well as a change in the data collection that took place in 2010.<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a></p>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:nobs-time"></span>
+<img src="nobs-time.png" alt="Number of observations over time." width="40%" />
+<p class="caption">
+Figure 1: Number of observations over time.
+</p>
+</div>
+<p>The Banco de Portugal has produced a document that describes the various variables as well as selected details about their construction. Find it <a href="manual_qp_v7.pdf">here.</a></p>
+</div>
+</div>
+<div id="reading-the-data-into-r" class="section level1">
+<h1>Reading the Data into R</h1>
+<p>Our first step will be to read the data into R. As wrote above, the data is in <code>.dta</code> format.</p>
+<pre class="markdown"><code>sampleqp.dta</code></pre>
+<p>What is a <code>.dta</code> file? A quick Google search says it’s a <a href="https://www.stata.com/">Stata</a> data file.</p>
+<p>There are several packages that allow to read a <code>.dta</code> file into R (e.g., {haven}, {foreign}).<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a> I use Wickham’s package.</p>
+<pre class="r"><code>library(&quot;haven&quot;) </code></pre>
+<p>Make sure the relative path is correct and read the data as follows. Notice the very simple name I chose for the data frame object, <code>df</code>.</p>
+<pre class="r"><code>df &lt;- read_dta(&quot;sampleqp.dta&quot;)</code></pre>
+<div id="save-future-time" class="section level3">
+<h3>Save Future Time</h3>
+<p>Because the file is very large, the reading can take a few seconds. To avoid wasting time, I suggest reading it only once, save the object in R format and then load it again when necessary.<a href="#fn5" class="footnote-ref" id="fnref5"><sup>5</sup></a></p>
+<pre class="r"><code>save(df, file=&quot;sampleqp.Rdata&quot;)</code></pre>
+<p>Later, we can simply load the <code>.Rdata</code> that will contain the <code>df</code> object.</p>
+<pre class="r"><code>load(&quot;sampleqp.Rdata&quot;)</code></pre>
+</div>
+</div>
+<div id="first-look" class="section level1">
+<h1>First Look</h1>
+<p>The data set tidy. It has 4’742’129 observations, each observation is one worker in some year. It’s a large data set. And there are 12 variables. These are the following.</p>
+<pre class="r"><code>names(df)</code></pre>
+<pre><code>##  [1] &quot;worker&quot;            &quot;year&quot;              &quot;firm&quot;             
+##  [4] &quot;log_t_real_h_wage&quot; &quot;male&quot;              &quot;age&quot;              
+##  [7] &quot;hab_comp3&quot;         &quot;tenure&quot;            &quot;job_title&quot;        
+## [10] &quot;sect_comp4&quot;        &quot;age2&quot;              &quot;tenure2&quot;</code></pre>
+<p>Also, let’s have a look at the type of variables that we have.</p>
+<pre class="r"><code>str(df)</code></pre>
+<pre><code>## tibble [4,742,129 × 12] (S3: tbl_df/tbl/data.frame)
+##  $ worker           : num [1:4742129] 1.67e+08 3.20e+08 4.69e+07 1.94e+08 1.52e+08 ...
+##   ..- attr(*, &quot;label&quot;)= chr &quot;NÃºmero do Trabalhador&quot;
+##   ..- attr(*, &quot;format.stata&quot;)= chr &quot;%16.0f&quot;
+##  $ year             : num [1:4742129] 1999 2015 2004 2013 2012 ...
+##   ..- attr(*, &quot;label&quot;)= chr &quot;Ano de referÃªncia dos dados&quot;
+##   ..- attr(*, &quot;format.stata&quot;)= chr &quot;%16.0f&quot;
+##  $ firm             : num [1:4742129] 470756 681779 213629 744477 439219 ...
+##   ..- attr(*, &quot;label&quot;)= chr &quot;group(npc_aux3)&quot;
+##   ..- attr(*, &quot;format.stata&quot;)= chr &quot;%10.0g&quot;
+##  $ log_t_real_h_wage: num [1:4742129] 0.6308 0.4813 -0.0606 -0.0816 0.5795 ...
+##   ..- attr(*, &quot;format.stata&quot;)= chr &quot;%9.0g&quot;
+##  $ male             : num [1:4742129] 1 0 0 1 1 0 0 0 1 0 ...
+##   ..- attr(*, &quot;format.stata&quot;)= chr &quot;%10.0g&quot;
+##  $ age              : num [1:4742129] 45 20 30 28 33 34 24 31 62 33 ...
+##   ..- attr(*, &quot;format.stata&quot;)= chr &quot;%9.0g&quot;
+##  $ hab_comp3        : num [1:4742129] 2 5 2 4 5 4 4 4 2 2 ...
+##   ..- attr(*, &quot;format.stata&quot;)= chr &quot;%9.0g&quot;
+##  $ tenure           : num [1:4742129] 180 6 101 24 153 93 17 1 152 138 ...
+##   ..- attr(*, &quot;format.stata&quot;)= chr &quot;%9.0g&quot;
+##  $ job_title        : num [1:4742129] 22334 64894 70452 113072 139534 ...
+##   ..- attr(*, &quot;label&quot;)= chr &quot;group(irc catprof y2004)&quot;
+##   ..- attr(*, &quot;format.stata&quot;)= chr &quot;%9.0g&quot;
+##  $ sect_comp4       : num [1:4742129] 13 22 14 21 15 28 27 21 18 8 ...
+##   ..- attr(*, &quot;format.stata&quot;)= chr &quot;%8.0g&quot;
+##  $ age2             : num [1:4742129] 2025 400 900 784 1089 ...
+##   ..- attr(*, &quot;format.stata&quot;)= chr &quot;%9.0g&quot;
+##  $ tenure2          : num [1:4742129] 32400 36 10201 576 23409 ...
+##   ..- attr(*, &quot;format.stata&quot;)= chr &quot;%9.0g&quot;</code></pre>
+<p>This is a bit of a mess and I suggest cleaning it in a few steps.</p>
+</div>
+<div id="remove-square-of-variables" class="section level1">
+<h1>Remove Square of Variables</h1>
+<p>The variables ending with a <code>2</code> are the squares of the other variables. Let’s be picky here and agree that we don’t need them.<a href="#fn6" class="footnote-ref" id="fnref6"><sup>6</sup></a></p>
+<pre class="r"><code> df &lt;- df %&gt;%
+  select(-age2, -tenure2)</code></pre>
+</div>
+<div id="remove-attributes" class="section level1">
+<h1>Remove Attributes</h1>
+<p>The attributes of the variables are information about the object that was stored by the provider of the data. This can be useful and up to crucial in some rare cases.</p>
+<pre class="r"><code>attributes(df$worker)</code></pre>
+<pre><code>## $label
+## [1] &quot;NÃºmero do Trabalhador&quot;
+## 
+## $format.stata
+## [1] &quot;%16.0f&quot;</code></pre>
+<p>For instance, the attributes are label, some information about the variable and format.stata, self-explanatory. For clarity, even if it is far from necessary, let’s get rid of them.<a href="#fn7" class="footnote-ref" id="fnref7"><sup>7</sup></a></p>
+<pre class="r"><code>df &lt;- lapply(df, function(x) { attributes(x) &lt;- NULL; x }) %&gt;%
+  as_tibble()
+str(df)</code></pre>
+<pre><code>## tibble [4,742,129 × 10] (S3: tbl_df/tbl/data.frame)
+##  $ worker           : num [1:4742129] 1.67e+08 3.20e+08 4.69e+07 1.94e+08 1.52e+08 ...
+##  $ year             : num [1:4742129] 1999 2015 2004 2013 2012 ...
+##  $ firm             : num [1:4742129] 470756 681779 213629 744477 439219 ...
+##  $ log_t_real_h_wage: num [1:4742129] 0.6308 0.4813 -0.0606 -0.0816 0.5795 ...
+##  $ male             : num [1:4742129] 1 0 0 1 1 0 0 0 1 0 ...
+##  $ age              : num [1:4742129] 45 20 30 28 33 34 24 31 62 33 ...
+##  $ hab_comp3        : num [1:4742129] 2 5 2 4 5 4 4 4 2 2 ...
+##  $ tenure           : num [1:4742129] 180 6 101 24 153 93 17 1 152 138 ...
+##  $ job_title        : num [1:4742129] 22334 64894 70452 113072 139534 ...
+##  $ sect_comp4       : num [1:4742129] 13 22 14 21 15 28 27 21 18 8 ...</code></pre>
+<p>Much cleaner!</p>
+</div>
+<div id="correct-type-of-variables" class="section level1">
+<h1>Correct Type of Variables</h1>
+<p>A much serious problem has to do with the type of variables. Clearly, all these variables are <strong>not</strong> numeric variables, as currently assumed. For instance, even if the variables <code>worker</code> and <code>firm</code> use numeric values, these are more like character id’s. Let’s change them.</p>
+<p>At the introductory level, and because there aren’t many variables, we could go the pedestrian way, i.e., make the change manually. Notice that there is a choice under the hood, here. I chose to turn into factors the variables that had a relatively small number of categories.<a href="#fn8" class="footnote-ref" id="fnref8"><sup>8</sup></a></p>
+<pre class="r"><code>df &lt;- df %&gt;%
+  mutate(worker= as.character(worker),
+         firm= as.character(firm),
+         job_title= as.character(job_title),
+         hab_comp3= factor(hab_comp3),
+         sect_comp4= factor(sect_comp4))</code></pre>
+<div id="advanced-alternative" class="section level3">
+<h3>Advanced Alternative</h3>
+<p>Advanced users will use the {dplyr} function <code>across()</code>.</p>
+<pre class="r"><code> df &lt;- df %&gt;% 
+   mutate(across(c(&quot;worker&quot;, &quot;firm&quot;, &quot;job_title&quot;), as.character),
+          across(c(&quot;hab_comp3&quot;, &quot;sect_comp4&quot;), as.factor))  </code></pre>
+</div>
+</div>
+<div id="dummy-into-factor" class="section level1">
+<h1>Dummy Into Factor</h1>
+<p>Several data sets use dummy variables to code categorical variables. For instance, here, the gender of the worker is given in the variable <code>male</code>. This latter takes the value 1 if the individual is a male, 0 otherwise.</p>
+<p>As we know, this is not the most appropriate way of handling categorical variables. Instead, one should use a specific type of variable, called <code>factor</code> in R. I make the change here.</p>
+<pre class="r"><code>df &lt;- df %&gt;%
+  mutate(gender = factor(case_when(
+            male == 1 ~ &quot;Male&quot;,
+            TRUE ~ &quot;Female&quot;
+            )))</code></pre>
+</div>
+<div id="renaming" class="section level1">
+<h1>Renaming</h1>
+<p>You really don’t want to code with long and cryptic variable names such as <code>log_t_real_h_wage</code> or <code>hab_comp3</code>. Here, I rename the variables (and delete the no longer necessary <code>male</code> variable)</p>
+<pre class="r"><code>df &lt;- df %&gt;%
+  select(-male) %&gt;%
+  rename(lwage = log_t_real_h_wage,
+          education = hab_comp3,
+          sector = sect_comp4)</code></pre>
+</div>
+<div id="last-look" class="section level1">
+<h1>Last Look</h1>
+<p>Let’s see what we have now.</p>
+<pre class="r"><code>str(df)</code></pre>
+<pre><code>## tibble [4,742,129 × 10] (S3: tbl_df/tbl/data.frame)
+##  $ worker   : chr [1:4742129] &quot;167304282&quot; &quot;320254781&quot; &quot;46925325&quot; &quot;193665739&quot; ...
+##  $ year     : num [1:4742129] 1999 2015 2004 2013 2012 ...
+##  $ firm     : chr [1:4742129] &quot;470756&quot; &quot;681779&quot; &quot;213629&quot; &quot;744477&quot; ...
+##  $ lwage    : num [1:4742129] 0.6308 0.4813 -0.0606 -0.0816 0.5795 ...
+##  $ age      : num [1:4742129] 45 20 30 28 33 34 24 31 62 33 ...
+##  $ education: Factor w/ 8 levels &quot;0&quot;,&quot;1&quot;,&quot;2&quot;,&quot;3&quot;,..: 3 6 3 5 6 5 5 5 3 3 ...
+##  $ tenure   : num [1:4742129] 180 6 101 24 153 93 17 1 152 138 ...
+##  $ job_title: chr [1:4742129] &quot;22334&quot; &quot;64894&quot; &quot;70452&quot; &quot;113072&quot; ...
+##  $ sector   : Factor w/ 28 levels &quot;3&quot;,&quot;4&quot;,&quot;5&quot;,&quot;6&quot;,..: 11 20 12 19 13 26 25 19 16 6 ...
+##  $ gender   : Factor w/ 2 levels &quot;Female&quot;,&quot;Male&quot;: 2 1 1 2 2 1 1 1 2 1 ...</code></pre>
+<p>Much better. We can start the analysis.</p>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>Abstract: <em>Using a comprehensive data set of Portuguese manufacturing firms, we show that the firm size distribution is significantly right-skewed, evolving over time toward a lognormal distribution. We also show that selection accounts for very little of this evolution. Instead, we propose a simple theory based on financing constraints. A calibrated version of our model does a good job at explaining the evolution of the firm size distribution.</em><a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p>Abstract: <em>This study documents two empirical facts using matched employer–employee data for Denmark and Portugal. First, workers who are hired last, are the first to leave the firm. Second, workers’ wages rise with seniority, where seniority is defined as a worker’s tenure relative to the tenure of his colleagues. Controlling for tenure, the probability of a worker leaving the firm decreases with seniority. The increase in expected seniority with tenure explains a large part of the negative duration dependence of the separation hazard. Conditional on ten years of tenure, the wage differential between the 10th and the 90th percentiles of the seniority distribution is 1.1–1.4 percentage points in Denmark and 2.3–3.4 in Portugal.</em><a href="#fnref2" class="footnote-back">↩︎</a></p></li>
+<li id="fn3"><p>I do not think that any of these problems is of nature of compromising the overall extremely good quality of the data.<a href="#fnref3" class="footnote-back">↩︎</a></p></li>
+<li id="fn4"><p>Notice that they can handle several types of data files, i.e., they are not specific to Stata data files.<a href="#fnref4" class="footnote-back">↩︎</a></p></li>
+<li id="fn5"><p>I do exactly that here. This is why my read/save chunks have the options <code>eval=FALSE</code>.<a href="#fnref5" class="footnote-back">↩︎</a></p></li>
+<li id="fn6"><p>And, if we do, we can always create them.<a href="#fnref6" class="footnote-back">↩︎</a></p></li>
+<li id="fn7"><p>Roughly speaking, the code apply to the data set <code>df</code> a function that affects (turns <code>NULL</code>) the attributes of the variables in the data set.<a href="#fnref7" class="footnote-back">↩︎</a></p></li>
+<li id="fn8"><p>To see which one apply, simply turn all the possible candidates into factors, check the number of levels, and change the code accordingly.<a href="#fnref8" class="footnote-back">↩︎</a></p></li>
+</ol>
+</div>
